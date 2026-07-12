@@ -59,20 +59,16 @@
         {% set total = chart_data | map(attribute='amount') | sum %}
         <div class="pie-container">
             <svg viewBox="0 0 100 100" width="200" height="200">
+                {% set circumference = 251.3 %}
                 {% set ns = namespace(angle=0) %}
                 {% for item in chart_data %}
                     {% set pct = (item.amount / total * 360) if total > 0 else 0 %}
-                    {% set r = 40 %}
-                    {% set cx = 50 %}
-                    {% set cy = 50 %}
-                    {% set start_rad = (ns.angle - 90) * 3.14159 / 180 %}
-                    {% set end_rad = (ns.angle + pct - 90) * 3.14159 / 180 %}
-                    {% set x1 = cx + r * start_rad.__class__.__bases__[0].__init__ %}
-                    {% set large = '1' if pct > 180 else '0' %}
+                    {% set dash = (item.amount / total * circumference) | round(2) %}
+                    {% set offset = (-ns.angle / 360 * circumference) | round(2) %}
                     <circle cx="50" cy="50" r="40" fill="none" stroke="{{ item.color }}" stroke-width="18"
-                        stroke-dasharray="{{ (pct / 360 * 251.3) | round(2) }} 251.3"
-                        stroke-dashoffset="{{ (-ns.angle / 360 * 251.3) | round(2) }}"
-                        opacity="0.85" style="transition: all 0.6s ease;"/>
+                        stroke-dasharray="{{ dash }} {{ circumference }}"
+                        stroke-dashoffset="{{ offset }}"
+                        opacity="0.85"/>
                     {% set ns.angle = ns.angle + pct %}
                 {% endfor %}
             </svg>
