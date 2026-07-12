@@ -1,50 +1,82 @@
 {% extends "base.html" %}
-{% block title %}Add Transaction{% endblock %}
+{% block title %}New Transaction - FinTrack{% endblock %}
+{% block extra_css %}
+.type-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
+.type-btn { flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; text-align: center; font-size: 14px; font-weight: 500; font-family: inherit; color: var(--text-secondary); transition: all 0.15s ease; }
+.type-btn:hover { border-color: var(--text-muted); }
+.type-btn.active-expense { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+.type-btn.active-income { border-color: var(--green); background: var(--green-bg); color: #059669; }
+.type-btn svg { display: block; margin: 0 auto 6px; }
+.amount-input { font-size: 32px !important; font-weight: 700 !important; text-align: center; padding: 16px !important; letter-spacing: -0.5px; }
+{% endblock %}
 {% block content %}
-<h2>Add Transaction</h2>
-<div class="card" style="max-width:500px;">
-    <form method="POST">
-        <label>Type</label>
-        <select name="type" id="type" onchange="updateCategories()" required>
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-        </select>
+<div style="max-width: 480px;">
+    <div style="margin-bottom:28px;">
+        <h1 style="font-size:24px; font-weight:700; color:var(--text);">New Transaction</h1>
+        <p style="font-size:14px; color:var(--text-muted); margin-top:2px;">Record an income or expense</p>
+    </div>
+    <div class="card" style="padding:28px;">
+        <form method="POST" id="txForm">
+            <div class="type-toggle">
+                <button type="button" class="type-btn active-expense" id="btn-expense" onclick="setType('expense')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                    Expense
+                </button>
+                <button type="button" class="type-btn" id="btn-income" onclick="setType('income')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    Income
+                </button>
+            </div>
+            <input type="hidden" name="type" id="type" value="expense"/>
 
-        <label>Category</label>
-        <select name="category" id="category" required>
-            {% for cat in expense_categories %}
-            <option value="{{ cat }}" data-type="expense" style="border-left:4px solid {{ category_colors[cat] }}">{{ cat }}</option>
-            {% endfor %}
-            {% for cat in income_categories %}
-            <option value="{{ cat }}" data-type="income" style="border-left:4px solid {{ category_colors[cat] }}">{{ cat }}</option>
-            {% endfor %}
-        </select>
+            <div class="field" style="margin-bottom:24px;">
+                <label style="text-align:center; font-size:13px;">Amount</label>
+                <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" class="amount-input" required/>
+            </div>
 
-        <label>Amount ($)</label>
-        <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required/>
+            <div class="field">
+                <label>Category</label>
+                <select name="category" id="category" required>
+                    {% for cat in expense_categories %}
+                    <option value="{{ cat }}" data-type="expense">{{ cat }}</option>
+                    {% endfor %}
+                    {% for cat in income_categories %}
+                    <option value="{{ cat }}" data-type="income">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <label>Description (optional)</label>
-        <input type="text" name="description" placeholder="e.g. Grocery shopping"/>
+            <div class="field">
+                <label>Description <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label>
+                <input type="text" name="description" placeholder="What was this for?"/>
+            </div>
 
-        <button type="submit">Add Transaction</button>
-    </form>
+            <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:15px; font-weight:600; margin-top:8px;">
+                Add Transaction
+            </button>
+        </form>
+    </div>
 </div>
 
 <script>
+function setType(type) {
+    document.getElementById('type').value = type;
+    const expBtn = document.getElementById('btn-expense');
+    const incBtn = document.getElementById('btn-income');
+    expBtn.className = type === 'expense' ? 'type-btn active-expense' : 'type-btn';
+    incBtn.className = type === 'income' ? 'type-btn active-income' : 'type-btn';
+    updateCategories();
+}
 function updateCategories() {
     const type = document.getElementById('type').value;
-    const options = document.querySelectorAll('#category option');
-    let firstVisible = null;
-    options.forEach(opt => {
-        if (opt.dataset.type === type) {
-            opt.style.display = '';
-            if (!firstVisible) firstVisible = opt;
-        } else {
-            opt.style.display = 'none';
-            opt.selected = false;
-        }
+    const sel = document.getElementById('category');
+    const opts = sel.querySelectorAll('option');
+    let first = null;
+    opts.forEach(o => {
+        if (o.dataset.type === type) { o.style.display = ''; if (!first) first = o; }
+        else { o.style.display = 'none'; o.selected = false; }
     });
-    if (firstVisible) firstVisible.selected = true;
+    if (first) first.selected = true;
 }
 updateCategories();
 </script>

@@ -1,34 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>{% block title %}Web App{% endblock %}</title>
+    <title>{% block title %}Finance Tracker{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { text-align: center; margin-bottom: 24px; color: #333; }
-        .flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
-        .flash.error { background: #ffe0e0; color: #d32f2f; }
-        label { display: block; margin-bottom: 4px; font-size: 14px; color: #555; }
-        input[type="text"], input[type="password"], input[type="email"] {
-            width: 100%; padding: 10px 12px; margin-bottom: 16px; border: 1px solid #ddd;
-            border-radius: 6px; font-size: 14px; outline: none;
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #a5b4fc;
+            --accent: #8b5cf6;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface-hover: #f1f5f9;
+            --border: #e2e8f0;
+            --border-focus: #6366f1;
+            --text: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --green: #10b981;
+            --green-bg: #ecfdf5;
+            --red: #ef4444;
+            --red-bg: #fef2f2;
+            --blue: #3b82f6;
+            --blue-bg: #eff6ff;
+            --amber: #f59e0b;
+            --amber-bg: #fffbeb;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-xs: 6px;
         }
-        input:focus { border-color: #4a90d9; }
-        button {
-            width: 100%; padding: 12px; background: #4a90d9; color: #fff; border: none;
-            border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 8px;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+        /* NAV */
+        nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); background: rgba(255,255,255,0.92); }
+        nav .brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); text-decoration: none; }
+        nav .brand svg { width: 28px; height: 28px; }
+        nav .links { display: flex; gap: 4px; align-items: center; }
+        nav .links a { color: var(--text-secondary); text-decoration: none; padding: 8px 16px; border-radius: var(--radius-xs); font-size: 14px; font-weight: 500; transition: all 0.15s ease; }
+        nav .links a:hover { color: var(--text); background: var(--surface-hover); }
+        nav .links a.active { color: var(--primary); background: #eef2ff; }
+        nav .links .sep { width: 1px; height: 20px; background: var(--border); margin: 0 8px; }
+        nav .links .logout { color: var(--red); }
+        nav .links .logout:hover { background: var(--red-bg); }
+
+        /* PAGE */
+        .page { max-width: 1200px; margin: 0 auto; padding: 32px; }
+
+        /* FLASH */
+        .flash { padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .flash.error { background: var(--red-bg); color: var(--red); border: 1px solid #fecaca; }
+        .flash.success { background: var(--green-bg); color: #059669; border: 1px solid #a7f3d0; }
+
+        /* CARDS */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); transition: box-shadow 0.2s ease; }
+        .card:hover { box-shadow: var(--shadow); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-header h3 { font-size: 15px; font-weight: 600; color: var(--text); }
+
+        /* GRID */
+        .grid { display: grid; gap: 20px; }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+
+        /* STAT CARDS */
+        .stat-card { position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .stat-card.income::before { background: linear-gradient(90deg, var(--green), #34d399); }
+        .stat-card.expense::before { background: linear-gradient(90deg, var(--red), #f87171); }
+        .stat-card.balance::before { background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        .stat-card .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .stat-card.income .stat-icon { background: var(--green-bg); color: var(--green); }
+        .stat-card.expense .stat-icon { background: var(--red-bg); color: var(--red); }
+        .stat-card.balance .stat-icon { background: #eef2ff; color: var(--primary); }
+        .stat-card .label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
+        .stat-card .value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+        .stat-card.income .value { color: var(--green); }
+        .stat-card.expense .value { color: var(--red); }
+        .stat-card.balance .value { color: var(--primary); }
+
+        /* FORMS */
+        label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+        input[type="text"], input[type="password"], input[type="email"],
+        input[type="number"], input[type="date"], select, textarea {
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+            border-radius: var(--radius-xs); font-size: 14px; font-family: inherit;
+            outline: none; transition: all 0.15s ease; background: var(--surface);
+            color: var(--text);
         }
-        button:hover { background: #357abd; }
-        .link { text-align: center; margin-top: 16px; font-size: 14px; }
-        .link a { color: #4a90d9; text-decoration: none; }
-        .link a:hover { text-decoration: underline; }
+        input:focus, select:focus, textarea:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        input::placeholder { color: var(--text-muted); }
+        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23475569' viewBox='0 0 16 16'%3E%3Cpath d='M4.47 5.97a.75.75 0 0 1 1.06 0L8 8.44l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+
+        /* BUTTONS */
+        button, .btn { padding: 10px 20px; border: none; border-radius: var(--radius-xs); font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 12px rgba(99,102,241,0.3); transform: translateY(-1px); }
+        .btn-danger { background: var(--red); color: #fff; }
+        .btn-danger:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
+        .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: var(--radius-xs); }
+
+        /* TABLE */
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg); }
+        td { padding: 12px 14px; font-size: 14px; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--surface-hover); }
+        th:first-child { border-radius: var(--radius-xs) 0 0 0; }
+        th:last-child { border-radius: 0 var(--radius-xs) 0 0; }
+
+        /* BADGES */
+        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge.income { background: var(--green-bg); color: #059669; }
+        .badge.expense { background: var(--red-bg); color: var(--red); }
+
+        /* MONTH NAV */
+        .month-nav { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .month-nav a { color: var(--primary); text-decoration: none; font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: var(--radius-xs); transition: all 0.15s ease; }
+        .month-nav a:hover { background: #eef2ff; }
+        .month-nav span { font-weight: 600; color: var(--text); font-size: 16px; min-width: 160px; text-align: center; }
+
+        /* EMPTY STATE */
+        .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+        .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; }
+        .empty-state p { font-size: 14px; line-height: 1.6; }
+        .empty-state a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .empty-state a:hover { text-decoration: underline; }
+
+        /* SECTION HEADER */
+        .section-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 16px; }
+
+        @media (max-width: 768px) {
+            .grid-3 { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+            nav { padding: 0 16px; }
+            .page { padding: 16px; }
+            nav .links a { padding: 6px 10px; font-size: 13px; }
+        }
+        {% block extra_css %}{% endblock %}
     </style>
 </head>
 <body>
-    <div class="container">
+    <nav>
+        <a href="{{ url_for('finance.dashboard') }}" class="brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            FinTrack
+        </a>
+        <div class="links">
+            <a href="{{ url_for('finance.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('finance.add_transaction') }}">New Transaction</a>
+            <a href="{{ url_for('finance.budgets') }}">Budgets</a>
+            <div class="sep"></div>
+            <a href="{{ url_for('auth.logout') }}" class="logout">Logout</a>
+        </div>
+    </nav>
+    <div class="page">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}

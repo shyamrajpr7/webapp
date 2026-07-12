@@ -1,19 +1,26 @@
-{% extends "base.html" %}
-{% block title %}Sign Up{% endblock %}
+{% extends "auth_base.html" %}
+{% block title %}Sign Up - FinTrack{% endblock %}
 {% block content %}
-<h2>Sign Up</h2>
 <form method="POST">
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" placeholder="Enter email" required/>
-    <label for="username">Username</label>
-    <input type="text" id="username" name="username" placeholder="Enter username" required/>
-    <label for="password1">Password</label>
-    <input type="password" id="password1" name="password1" placeholder="Enter password" required/>
-    <label for="password2">Confirm Password</label>
-    <input type="password" id="password2" name="password2" placeholder="Confirm password" required/>
-    <button type="submit">Sign Up</button>
+    <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required/>
+    </div>
+    <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Choose a username" required/>
+    </div>
+    <div class="field">
+        <label for="password1">Password</label>
+        <input type="password" id="password1" name="password1" placeholder="At least 6 characters" required/>
+    </div>
+    <div class="field">
+        <label for="password2">Confirm password</label>
+        <input type="password" id="password2" name="password2" placeholder="Repeat your password" required/>
+    </div>
+    <button type="submit" class="btn-submit">Create Account</button>
 </form>
-<div class="link">
-    Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>
+<div class="auth-link">
+    Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
 </div>
 {% endblock %}

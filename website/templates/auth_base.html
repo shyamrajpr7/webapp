@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}FinTrack{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --red: #ef4444;
+            --red-bg: #fef2f2;
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            position: relative; overflow: hidden; -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(99,102,241,0.12) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(139,92,246,0.08) 0%, transparent 50%);
+        }
+        .auth-wrapper { position: relative; z-index: 1; width: 100%; max-width: 420px; padding: 24px; }
+        .auth-card {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+            border-radius: 16px; padding: 40px 36px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .auth-logo { text-align: center; margin-bottom: 32px; }
+        .auth-logo svg { width: 40px; height: 40px; color: var(--primary); margin-bottom: 12px; }
+        .auth-logo h1 { font-size: 22px; font-weight: 700; color: var(--text); }
+        .auth-logo p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+        .flash { padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; font-weight: 500; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+        .flash.error { background: var(--red-bg); color: var(--red); border: 1px solid #fecaca; }
+
+        label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 14px; font-family: inherit;
+            outline: none; transition: all 0.15s ease; background: #fff; color: var(--text);
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        input::placeholder { color: var(--text-muted); }
+        .field { margin-bottom: 18px; }
+        .btn-submit {
+            width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none;
+            border-radius: 8px; font-size: 15px; font-weight: 600; font-family: inherit;
+            cursor: pointer; transition: all 0.2s ease; margin-top: 8px;
+        }
+        .btn-submit:hover { background: var(--primary-dark); box-shadow: 0 8px 20px rgba(99,102,241,0.35); transform: translateY(-1px); }
+        .btn-submit:active { transform: translateY(0); }
+        .auth-link { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-muted); }
+        .auth-link a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .auth-link a:hover { text-decoration: underline; }
+        .divider { display: flex; align-items: center; margin: 20px 0; color: var(--text-muted); font-size: 12px; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .divider span { padding: 0 12px; }
+    </style>
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <h1>FinTrack</h1>
+                <p>Personal Finance Manager</p>
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>
