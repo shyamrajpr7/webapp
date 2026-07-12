@@ -3,32 +3,75 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>{% block title %}Web App{% endblock %}</title>
+    <title>{% block title %}Finance Tracker{% endblock %}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { text-align: center; margin-bottom: 24px; color: #333; }
+        body { background: #f0f2f5; min-height: 100vh; }
+        nav { background: #1e293b; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        nav .brand { color: #fff; font-size: 18px; font-weight: 600; }
+        nav .links { display: flex; gap: 8px; align-items: center; }
+        nav .links a { color: #94a3b8; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 14px; transition: all 0.2s; }
+        nav .links a:hover, nav .links a.active { color: #fff; background: #334155; }
+        nav .links .logout { color: #f87171; }
+        nav .links .logout:hover { background: #7f1d1d; }
+        .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        h2 { color: #1e293b; margin-bottom: 20px; font-size: 22px; }
         .flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
-        .flash.error { background: #ffe0e0; color: #d32f2f; }
-        label { display: block; margin-bottom: 4px; font-size: 14px; color: #555; }
-        input[type="text"], input[type="password"], input[type="email"] {
+        .flash.error { background: #fee2e2; color: #dc2626; }
+        .flash.success { background: #dcfce7; color: #16a34a; }
+        .card { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .grid { display: grid; gap: 20px; }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+        .stat-card { text-align: center; }
+        .stat-card .label { font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .stat-card .value { font-size: 28px; font-weight: 700; }
+        .stat-card .value.green { color: #16a34a; }
+        .stat-card .value.red { color: #dc2626; }
+        .stat-card .value.blue { color: #2563eb; }
+        label { display: block; margin-bottom: 4px; font-size: 14px; color: #555; font-weight: 500; }
+        input[type="text"], input[type="password"], input[type="email"],
+        input[type="number"], input[type="date"], select, textarea {
             width: 100%; padding: 10px 12px; margin-bottom: 16px; border: 1px solid #ddd;
-            border-radius: 6px; font-size: 14px; outline: none;
+            border-radius: 6px; font-size: 14px; outline: none; background: #fff;
         }
-        input:focus { border-color: #4a90d9; }
-        button {
-            width: 100%; padding: 12px; background: #4a90d9; color: #fff; border: none;
-            border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 8px;
+        input:focus, select:focus, textarea:focus { border-color: #4a90d9; }
+        button, .btn {
+            padding: 10px 20px; background: #4a90d9; color: #fff; border: none;
+            border-radius: 6px; font-size: 14px; cursor: pointer; text-decoration: none;
+            display: inline-block; transition: background 0.2s;
         }
-        button:hover { background: #357abd; }
-        .link { text-align: center; margin-top: 16px; font-size: 14px; }
-        .link a { color: #4a90d9; text-decoration: none; }
-        .link a:hover { text-decoration: underline; }
+        button:hover, .btn:hover { background: #357abd; }
+        .btn-danger { background: #dc2626; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+        th { color: #64748b; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; color: #fff; }
+        .badge.income { background: #16a34a; }
+        .badge.expense { background: #dc2626; }
+        .month-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .month-nav a { color: #4a90d9; text-decoration: none; font-size: 14px; }
+        .month-nav span { font-weight: 600; color: #1e293b; font-size: 16px; }
+        @media (max-width: 768px) {
+            .grid-3 { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        {% block extra_css %}{% endblock %}
     </style>
 </head>
 <body>
-    <div class="container">
+    <nav>
+        <div class="brand">Finance Tracker</div>
+        <div class="links">
+            <a href="{{ url_for('finance.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('finance.add_transaction') }}">Add Transaction</a>
+            <a href="{{ url_for('finance.budgets') }}">Budgets</a>
+            <a href="{{ url_for('auth.logout') }}" class="logout">Logout</a>
+        </div>
+    </nav>
+    <div class="page">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}

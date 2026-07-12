@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Add Transaction{% endblock %}
+{% block content %}
+<h2>Add Transaction</h2>
+<div class="card" style="max-width:500px;">
+    <form method="POST">
+        <label>Type</label>
+        <select name="type" id="type" onchange="updateCategories()" required>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+        </select>
+
+        <label>Category</label>
+        <select name="category" id="category" required>
+            {% for cat in expense_categories %}
+            <option value="{{ cat }}" data-type="expense" style="border-left:4px solid {{ category_colors[cat] }}">{{ cat }}</option>
+            {% endfor %}
+            {% for cat in income_categories %}
+            <option value="{{ cat }}" data-type="income" style="border-left:4px solid {{ category_colors[cat] }}">{{ cat }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Amount ($)</label>
+        <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required/>
+
+        <label>Description (optional)</label>
+        <input type="text" name="description" placeholder="e.g. Grocery shopping"/>
+
+        <button type="submit">Add Transaction</button>
+    </form>
+</div>
+
+<script>
+function updateCategories() {
+    const type = document.getElementById('type').value;
+    const options = document.querySelectorAll('#category option');
+    let firstVisible = null;
+    options.forEach(opt => {
+        if (opt.dataset.type === type) {
+            opt.style.display = '';
+            if (!firstVisible) firstVisible = opt;
+        } else {
+            opt.style.display = 'none';
+            opt.selected = false;
+        }
+    });
+    if (firstVisible) firstVisible.selected = true;
+}
+updateCategories();
+</script>
+{% endblock %}

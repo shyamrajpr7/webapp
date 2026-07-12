@@ -17,9 +17,11 @@ def create_app():
 
     from .views import views
     from .auth import auth
+    from .finance import finance
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(finance, url_prefix='/')
 
     with app.app_context():
         from . import models

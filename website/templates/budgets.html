@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Budgets{% endblock %}
+{% block content %}
+<h2>Monthly Budgets</h2>
+
+<div class="month-nav">
+    {% set prev_month = month - 1 if month > 1 else 12 %}
+    {% set prev_year = year if month > 1 else year - 1 %}
+    {% set next_month = month + 1 if month < 12 else 1 %}
+    {% set next_year = year if month < 12 else year + 1 %}
+    <a href="?month={{ prev_month }}&year={{ prev_year }}">&#8592; Prev</a>
+    <span>{{ months[month - 1] }} {{ year }}</span>
+    <a href="?month={{ next_month }}&year={{ next_year }}">Next &#8594;</a>
+</div>
+
+<div class="card" style="max-width:600px;">
+    <form method="POST">
+        <table>
+            <thead>
+                <tr><th>Category</th><th>Budget ($)</th></tr>
+            </thead>
+            <tbody>
+                {% for cat in expense_categories %}
+                <tr>
+                    <td style="font-weight:500;">
+                        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:{{ category_colors[cat] }}; margin-right:8px;"></span>
+                        {{ cat }}
+                    </td>
+                    <td>
+                        <input type="number" name="budget_{{ cat }}" step="0.01" min="0"
+                               value="{{ '%.2f'|format(budget_map.get(cat, 0)) }}"
+                               placeholder="0.00" style="margin-bottom:0;"/>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top:20px;">
+            <button type="submit">Save Budgets</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

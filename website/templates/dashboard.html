@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2>Dashboard</h2>
+
+<div class="month-nav">
+    {% set prev_month = month - 1 if month > 1 else 12 %}
+    {% set prev_year = year if month > 1 else year - 1 %}
+    {% set next_month = month + 1 if month < 12 else 1 %}
+    {% set next_year = year if month < 12 else year + 1 %}
+    <a href="?month={{ prev_month }}&year={{ prev_year }}">&#8592; Prev</a>
+    <span>{{ months[month - 1] }} {{ year }}</span>
+    <a href="?month={{ next_month }}&year={{ next_year }}">Next &#8594;</a>
+</div>
+
+<div class="grid grid-3" style="margin-bottom:24px;">
+    <div class="card stat-card">
+        <div class="label">Income</div>
+        <div class="value green">${{ "%.2f"|format(income) }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="label">Expenses</div>
+        <div class="value red">${{ "%.2f"|format(expenses) }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="label">Balance</div>
+        <div class="value blue">${{ "%.2f"|format(balance) }}</div>
+    </div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:24px;">
+    <div class="card">
+        <h2 style="margin-bottom:16px; font-size:16px;">Spending by Category</h2>
+        {% if chart_data %}
+        <svg viewBox="0 0 400 220" width="100%" style="display:block;">
+            {% set bar_width = (320 / chart_data|length) %}
+            {% for item in chart_data %}
+                {% set bar_height = (item.amount / max_expense * 140) if max_expense > 0 else 0 %}
+                {% set x = 40 + loop.index0 * bar_width %}
+                <rect x="{{ x + 4 }}" y="{{ 190 - bar_height }}" width="{{ bar_width - 8 }}" height="{{ bar_height }}"
+                      rx="4" fill="{{ item.color }}" opacity="0.85">
+                    <animate attributeName="height" from="0" to="{{ bar_height }}" dur="0.5s" fill="freeze"/>
+                    <animate attributeName="y" from="190" to="{{ 190 - bar_height }}" dur="0.5s" fill="freeze"/>
+                </rect>
+                <text x="{{ x + bar_width/2 }}" y="206" text-anchor="middle" font-size="10" fill="#64748b">
+                    {{ item.category.split()[0] }}
+                </text>
+                <text x="{{ x + bar_width/2 }}" y="{{ 185 - bar_height }}" text-anchor="middle" font-size="10" fill="#334155" font-weight="600">
+                    ${{ "%.0f"|format(item.amount) }}
+                </text>
+            {% endfor %}
+            <line x1="40" y1="190" x2="380" y2="190" stroke="#e5e7eb" stroke-width="1"/>
+        </svg>
+        {% else %}
+        <p style="color:#94a3b8; text-align:center; padding:40px 0;">No expenses recorded this month.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2 style="margin-bottom:16px; font-size:16px;">Budget Progress</h2>
+        {% set has_budgets = spending_data | selectattr('budget') | list %}
+        {% if has_budgets %}
+            {% for item in spending_data if item.budget > 0 %}
+            <div style="margin-bottom:14px;">
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
+                    <span style="color:#334155; font-weight:500;">{{ item.category }}</span>
+                    <span style="color:#64748b;">${{ "%.0f"|format(item.spent) }} / ${{ "%.0f"|format(item.budget) }}</span>
+                </div>
+                <svg width="100%" height="12" style="display:block;">
+                    <rect x="0" y="0" width="100%" height="12" rx="6" fill="#e5e7eb"/>
+                    <rect x="0" y="0" width="{{ item.percentage }}%" height="12" rx="6" fill="{{ item.color }}">
+                        <animate attributeName="width" from="0" to="{{ item.percentage }}%" dur="0.6s" fill="freeze"/>
+                    </rect>
+                </svg>
+            </div>
+            {% endfor %}
+        {% else %}
+        <p style="color:#94a3b8; text-align:center; padding:40px 0;">No budgets set for this month.<br><a href="{{ url_for('finance.budgets') }}" style="color:#4a90d9;">Set budgets</a></p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 style="margin-bottom:0; font-size:16px;">Recent Transactions</h2>
+        <a href="{{ url_for('finance.add_transaction') }}" class="btn btn-sm">+ Add</a>
+    </div>
+    {% if transactions %}
+    <table>
+        <thead>
+            <tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th>Amount</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t.date.strftime('%b %d') }}</td>
+                <td><span class="badge {{ t.type }}">{{ t.type.capitalize() }}</span></td>
+                <td style="color:{{ category_colors.get(t.category, '#6b7280') }}; font-weight:500;">{{ t.category }}</td>
+                <td style="color:#64748b;">{{ t.description or '-' }}</td>
+                <td style="font-weight:600; color:{{ '#16a34a' if t.type == 'income' else '#dc2626' }}">
+                    {{ '+' if t.type == 'income' else '-' }}${{ "%.2f"|format(t.amount) }}
+                </td>
+                <td><a href="{{ url_for('finance.delete_transaction', id=t.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this transaction?')">X</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#94a3b8; text-align:center; padding:24px 0;">No transactions yet. <a href="{{ url_for('finance.add_transaction') }}" style="color:#4a90d9;">Add one</a></p>
+    {% endif %}
+</div>
+{% endblock %}
