@@ -200,6 +200,19 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </div>
+    <div id="confirmModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px; max-width:380px; width:90%; box-shadow:var(--shadow-lg); text-align:center;">
+            <div style="width:48px; height:48px; border-radius:50%; background:var(--red-bg); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </div>
+            <h3 style="font-size:16px; font-weight:600; color:var(--text); margin-bottom:8px;">Delete Transaction?</h3>
+            <p style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">This action cannot be undone.</p>
+            <div style="display:flex; gap:12px;">
+                <button onclick="closeModal()" class="btn btn-ghost" style="flex:1; justify-content:center;">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger" style="flex:1; justify-content:center;">Delete</a>
+            </div>
+        </div>
+    </div>
     <script>
     function toggleTheme() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -217,6 +230,16 @@
         if (saved) document.documentElement.setAttribute('data-theme', saved);
         updateIcons();
     })();
+    function confirmDelete(url) {
+        document.getElementById('confirmDeleteBtn').href = url;
+        document.getElementById('confirmModal').style.display = 'flex';
+    }
+    function closeModal() {
+        document.getElementById('confirmModal').style.display = 'none';
+    }
+    document.getElementById('confirmModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
     </script>
 </body>
 </html>
