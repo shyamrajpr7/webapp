@@ -136,7 +136,7 @@
     {% if transactions %}
     <table>
         <thead>
-            <tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th style="text-align:right;">Amount</th><th style="width:40px;"></th></tr>
+            <tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th style="text-align:right;">Amount</th><th style="width:70px;"></th></tr>
         </thead>
         <tbody>
             {% for t in transactions %}
@@ -153,7 +153,10 @@
                 <td style="text-align:right; font-weight:600; font-variant-numeric:tabular-nums; color:{{ '#059669' if t.type == 'income' else 'var(--red)' }};">
                     {{ '+' if t.type == 'income' else '-' }}${{ "%.2f"|format(t.amount) }}
                 </td>
-                <td>
+                <td style="white-space:nowrap;">
+                    <a href="{{ url_for('finance.edit_transaction', id=t.id) }}"
+                       style="color:var(--primary); text-decoration:none; font-size:13px; padding:4px 6px; border-radius:4px;"
+                       title="Edit">&#9998;</a>
                     <a href="{{ url_for('finance.delete_transaction', id=t.id) }}"
                        onclick="return confirm('Delete this transaction?')"
                        style="color:var(--text-muted); text-decoration:none; font-size:16px; line-height:1; padding:4px;"

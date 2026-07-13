@@ -93,6 +93,32 @@ def add_transaction():
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
         category_colors=CATEGORY_COLORS)
 
+@finance.route('/edit-transaction/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_transaction(id):
+    t = Transaction.query.get_or_404(id)
+    if t.user_id != current_user.id:
+        flash('Unauthorized.', 'error')
+        return redirect(url_for('finance.dashboard'))
+
+    if request.method == 'POST':
+        t.type = request.form.get('type')
+        t.amount = request.form.get('amount', type=float)
+        t.category = request.form.get('category')
+        t.description = request.form.get('description', '')
+        if not t.amount or t.amount <= 0:
+            flash('Please enter a valid amount.', 'error')
+        elif not t.category:
+            flash('Please select a category.', 'error')
+        else:
+            db.session.commit()
+            flash('Transaction updated!', 'success')
+            return redirect(url_for('finance.dashboard'))
+
+    return render_template('edit_transaction.html', user=current_user, transaction=t,
+        expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
+        category_colors=CATEGORY_COLORS)
+
 @finance.route('/delete-transaction/<int:id>')
 @login_required
 def delete_transaction(id):
