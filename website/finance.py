@@ -60,6 +60,17 @@ def dashboard():
                     'color': CATEGORY_COLORS.get(cat, '#6b7280')}
                   for cat in EXPENSE_CATEGORIES if expense_by_cat.get(cat, 0) > 0]
 
+    alerts = []
+    for item in spending_data:
+        if item['budget'] > 0:
+            pct = (item['spent'] / item['budget']) * 100
+            if pct >= 100:
+                alerts.append({'category': item['category'], 'spent': item['spent'],
+                    'budget': item['budget'], 'percentage': pct, 'level': 'exceeded'})
+            elif pct >= 80:
+                alerts.append({'category': item['category'], 'spent': item['spent'],
+                    'budget': item['budget'], 'percentage': pct, 'level': 'warning'})
+
     recent = sorted(monthly, key=lambda t: t.date, reverse=True)[:10]
 
     months = ['January','February','March','April','May','June',
@@ -69,7 +80,7 @@ def dashboard():
         income=income, expenses=expenses, balance=balance,
         spending_data=spending_data, chart_data=chart_data,
         max_expense=max_expense, month=month, year=year, months=months,
-        all_transactions=monthly,
+        all_transactions=monthly, alerts=alerts,
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
