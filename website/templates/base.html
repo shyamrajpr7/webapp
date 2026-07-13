@@ -35,6 +35,29 @@
             --radius-sm: 8px;
             --radius-xs: 6px;
         }
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --border: #334155;
+            --border-focus: #818cf8;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --green-bg: #064e3b;
+            --red-bg: #450a0a;
+            --blue-bg: #1e3a5f;
+            --amber-bg: #451a03;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+            --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -2px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(0,0,0,0.3);
+        }
+        [data-theme="dark"] nav { background: rgba(30,41,59,0.92); }
+        [data-theme="dark"] .flash.error { border-color: #7f1d1d; }
+        [data-theme="dark"] .flash.success { border-color: #064e3b; }
+        [data-theme="dark"] .badge.income { background: #064e3b; }
+        [data-theme="dark"] .badge.expense { background: #450a0a; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
@@ -161,6 +184,10 @@
             <a href="{{ url_for('finance.budgets') }}">Budgets</a>
             <div class="sep"></div>
             <a href="{{ url_for('auth.logout') }}" class="logout">Logout</a>
+            <button id="themeToggle" onclick="toggleTheme()" style="background:none; border:none; cursor:pointer; padding:6px; color:var(--text-secondary); border-radius:var(--radius-xs); display:flex; align-items:center;" title="Toggle dark mode">
+                <svg id="sunIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg id="moonIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
         </div>
     </nav>
     <div class="page">
@@ -173,5 +200,23 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </div>
+    <script>
+    function toggleTheme() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        updateIcons();
+    }
+    function updateIcons() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.getElementById('sunIcon').style.display = isDark ? 'none' : 'block';
+        document.getElementById('moonIcon').style.display = isDark ? 'block' : 'none';
+    }
+    (function() {
+        const saved = localStorage.getItem('theme');
+        if (saved) document.documentElement.setAttribute('data-theme', saved);
+        updateIcons();
+    })();
+    </script>
 </body>
 </html>
