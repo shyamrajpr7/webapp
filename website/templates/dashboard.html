@@ -71,6 +71,54 @@
     </div>
 </div>
 
+{% if comparison.prev_income > 0 or comparison.prev_expenses > 0 %}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <h3>vs. {{ months[prev_month - 1] }}</h3>
+    </div>
+    <div style="display:flex; gap:24px; flex-wrap:wrap;">
+        {% set inc = comparison.income_change %}
+        {% set exp = comparison.expense_change %}
+        {% set bal = comparison.balance_change %}
+        <div style="flex:1; min-width:120px; text-align:center;">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Income</div>
+            {% if inc is not none %}
+            <div style="font-size:18px; font-weight:700; color:{{ 'var(--green)' if inc >= 0 else 'var(--red)' }};">
+                {{ '+' if inc >= 0 else '' }}{{ "%.1f"|format(inc) }}%
+            </div>
+            {% else %}
+            <div style="font-size:18px; font-weight:700; color:var(--text-muted);">--</div>
+            {% endif %}
+            <div style="font-size:11px; color:var(--text-muted);">was ${{ "%.0f"|format(comparison.prev_income) }}</div>
+        </div>
+        <div style="width:1px; background:var(--border);"></div>
+        <div style="flex:1; min-width:120px; text-align:center;">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Expenses</div>
+            {% if exp is not none %}
+            <div style="font-size:18px; font-weight:700; color:{{ 'var(--green)' if exp <= 0 else 'var(--red)' }};">
+                {{ '+' if exp >= 0 else '' }}{{ "%.1f"|format(exp) }}%
+            </div>
+            {% else %}
+            <div style="font-size:18px; font-weight:700; color:var(--text-muted);">--</div>
+            {% endif %}
+            <div style="font-size:11px; color:var(--text-muted);">was ${{ "%.0f"|format(comparison.prev_expenses) }}</div>
+        </div>
+        <div style="width:1px; background:var(--border);"></div>
+        <div style="flex:1; min-width:120px; text-align:center;">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Balance</div>
+            {% if bal is not none %}
+            <div style="font-size:18px; font-weight:700; color:{{ 'var(--green)' if bal >= 0 else 'var(--red)' }};">
+                {{ '+' if bal >= 0 else '' }}{{ "%.1f"|format(bal) }}%
+            </div>
+            {% else %}
+            <div style="font-size:18px; font-weight:700; color:var(--text-muted);">--</div>
+            {% endif %}
+            <div style="font-size:11px; color:var(--text-muted);">was ${{ "%.0f"|format(comparison.prev_balance) }}</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="grid grid-2" style="margin-bottom:24px;">
     <div class="card">
         <div class="card-header">

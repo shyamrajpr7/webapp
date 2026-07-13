@@ -37,6 +37,27 @@ def dashboard():
     expenses = sum(t.amount for t in monthly if t.type == 'expense')
     balance = income - expenses
 
+    prev_month = month - 1 if month > 1 else 12
+    prev_year = year if month > 1 else year - 1
+    prev_transactions = [t for t in transactions if t.date.month == prev_month and t.date.year == prev_year]
+    prev_income = sum(t.amount for t in prev_transactions if t.type == 'income')
+    prev_expenses = sum(t.amount for t in prev_transactions if t.type == 'expense')
+    prev_balance = prev_income - prev_expenses
+
+    def pct_change(current, previous):
+        if previous == 0:
+            return None if current == 0 else 100.0
+        return ((current - previous) / previous) * 100
+
+    comparison = {
+        'income_change': pct_change(income, prev_income),
+        'expense_change': pct_change(expenses, prev_expenses),
+        'balance_change': pct_change(balance, prev_balance),
+        'prev_income': prev_income,
+        'prev_expenses': prev_expenses,
+        'prev_balance': prev_balance,
+    }
+
     expense_by_cat = {}
     for t in monthly:
         if t.type == 'expense':
@@ -80,7 +101,7 @@ def dashboard():
         income=income, expenses=expenses, balance=balance,
         spending_data=spending_data, chart_data=chart_data,
         max_expense=max_expense, month=month, year=year, months=months,
-        all_transactions=monthly, alerts=alerts,
+        all_transactions=monthly, alerts=alerts, comparison=comparison,
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
