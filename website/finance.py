@@ -66,7 +66,9 @@ def dashboard():
     return render_template('dashboard.html', user=current_user, transactions=recent,
         income=income, expenses=expenses, balance=balance,
         spending_data=spending_data, chart_data=chart_data,
-        max_expense=max_expense, month=month, year=year, months=months)
+        max_expense=max_expense, month=month, year=year, months=months,
+        all_transactions=monthly,
+        expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required

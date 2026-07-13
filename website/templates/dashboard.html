@@ -133,6 +133,23 @@
             Add Transaction
         </a>
     </div>
+    <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+        <input type="text" id="searchInput" placeholder="Search transactions..." onkeyup="filterTransactions()" style="flex:1; min-width:200px;"/>
+        <select id="typeFilter" onchange="filterTransactions()" style="width:140px;">
+            <option value="all">All Types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
+        <select id="catFilter" onchange="filterTransactions()" style="width:180px;">
+            <option value="all">All Categories</option>
+            {% for cat in expense_categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+            {% for cat in income_categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
     {% if transactions %}
     <table>
         <thead>
@@ -140,7 +157,7 @@
         </thead>
         <tbody>
             {% for t in transactions %}
-            <tr>
+            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}">
                 <td style="color:var(--text-secondary);">{{ t.date.strftime('%b %d, %Y') }}</td>
                 <td><span class="badge {{ t.type }}">{{ t.type }}</span></td>
                 <td>
@@ -173,4 +190,17 @@
     </div>
     {% endif %}
 </div>
+<script>
+function filterTransactions() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const type = document.getElementById('typeFilter').value;
+    const cat = document.getElementById('catFilter').value;
+    document.querySelectorAll('tbody tr').forEach(row => {
+        const matchType = type === 'all' || row.dataset.type === type;
+        const matchCat = cat === 'all' || row.dataset.category === cat;
+        const matchSearch = !search || row.dataset.desc.includes(search) || row.dataset.category.toLowerCase().includes(search);
+        row.style.display = (matchType && matchCat && matchSearch) ? '' : 'none';
+    });
+}
+</script>
 {% endblock %}
