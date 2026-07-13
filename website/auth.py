@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
-from .models import User
+from .models import User, Transaction, Budget
 
 auth = Blueprint('auth', __name__)
 
@@ -55,3 +55,45 @@ def sign_up():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+@auth.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        current_password = request.form.get('current_password', '')
+        new_password = request.form.get('new_password', '')
+        confirm_password = request.form.get('confirm_password', '')
+
+        if len(username) < 2:
+            flash('Username must be at least 2 characters.', 'error')
+        elif len(email) < 4:
+            flash('Email must be at least 4 characters.', 'error')
+        else:
+            existing = User.query.filter(User.email == email, User.id != current_user.id).first()
+            if existing:
+                flash('Email already in use.', 'error')
+            elif current_password and new_password:
+                if not check_password_hash(current_user.password, current_password):
+                    flash('Current password is incorrect.', 'error')
+                elif len(new_password) < 6:
+                    flash('New password must be at least 6 characters.', 'error')
+                elif new_password != confirm_password:
+                    flash('New passwords do not match.', 'error')
+                else:
+                    current_user.username = username
+                    current_user.email = email
+                    current_user.password = generate_password_hash(new_password, method='pbkdf2:sha256')
+                    db.session.commit()
+                    flash('Profile updated!', 'success')
+                    return redirect(url_for('auth.profile'))
+            else:
+                current_user.username = username
+                current_user.email = email
+                db.session.commit()
+                flash('Profile updated!', 'success')
+                return redirect(url_for('auth.profile'))
+
+    tx_count = Transaction.query.filter_by(user_id=current_user.id).count()
+    return render_template('profile.html', user=current_user, tx_count=tx_count)

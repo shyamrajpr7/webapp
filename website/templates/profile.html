@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Profile - FinTrack{% endblock %}
+{% block content %}
+<div style="max-width: 520px;">
+    <div style="margin-bottom:28px;">
+        <h1 style="font-size:24px; font-weight:700; color:var(--text);">My Profile</h1>
+        <p style="font-size:14px; color:var(--text-muted); margin-top:2px;">Manage your account settings</p>
+    </div>
+
+    <div class="card" style="margin-bottom:20px; padding:28px;">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+            <div style="width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--accent)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:22px; font-weight:700;">
+                {{ user.username[0]|upper }}
+            </div>
+            <div>
+                <div style="font-size:18px; font-weight:600; color:var(--text);">{{ user.username }}</div>
+                <div style="font-size:13px; color:var(--text-muted);">{{ user.email }}</div>
+            </div>
+        </div>
+        <div style="display:flex; gap:24px; padding:16px; background:var(--bg); border-radius:var(--radius-sm);">
+            <div style="text-align:center; flex:1;">
+                <div style="font-size:20px; font-weight:700; color:var(--primary);">{{ tx_count }}</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Transactions</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="padding:28px;">
+        <h3 style="font-size:15px; font-weight:600; color:var(--text); margin-bottom:20px;">Edit Profile</h3>
+        <form method="POST">
+            <div class="field" style="margin-bottom:16px;">
+                <label>Username</label>
+                <input type="text" name="username" value="{{ user.username }}" required/>
+            </div>
+            <div class="field" style="margin-bottom:24px;">
+                <label>Email</label>
+                <input type="email" name="email" value="{{ user.email }}" required/>
+            </div>
+
+            <div style="border-top:1px solid var(--border); padding-top:20px; margin-bottom:20px;">
+                <h4 style="font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:16px;">Change Password <span style="color:var(--text-muted); font-weight:400;">(optional)</span></h4>
+                <div class="field" style="margin-bottom:12px;">
+                    <label>Current Password</label>
+                    <input type="password" name="current_password" placeholder="Enter current password"/>
+                </div>
+                <div class="field" style="margin-bottom:12px;">
+                    <label>New Password</label>
+                    <input type="password" name="new_password" placeholder="Enter new password"/>
+                </div>
+                <div class="field">
+                    <label>Confirm New Password</label>
+                    <input type="password" name="confirm_password" placeholder="Confirm new password"/>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:15px; font-weight:600;">
+                Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
