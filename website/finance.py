@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
 from flask_login import login_required, current_user
 from datetime import datetime
+import csv
+import io
 from . import db
 from .models import Transaction, Budget
 
@@ -166,3 +168,25 @@ def budgets():
     return render_template('budgets.html', user=current_user,
         expense_categories=EXPENSE_CATEGORIES, budget_map=budget_map,
         category_colors=CATEGORY_COLORS, month=month, year=year, months=months)
+
+@finance.route('/export-csv')
+@login_required
+def export_csv():
+    month = request.args.get('month', datetime.now().month, type=int)
+    year = request.args.get('year', datetime.now().year, type=int)
+
+    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+    monthly = [t for t in transactions if t.date.month == month and t.date.year == year]
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Date', 'Type', 'Category', 'Description', 'Amount'])
+    for t in sorted(monthly, key=lambda x: x.date, reverse=True):
+        writer.writerow([t.date.strftime('%Y-%m-%d'), t.type, t.category, t.description or '', f'{t.amount:.2f}'])
+
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment;filename=transactions_{year}_{month:02d}.csv'}
+    )
