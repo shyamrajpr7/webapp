@@ -97,6 +97,20 @@ def dashboard():
 
     recent = sorted(monthly, key=lambda t: t.date, reverse=True)[:10]
 
+    monthly_history = []
+    for i in range(5, -1, -1):
+        m = now.month - i
+        y = now.year
+        while m <= 0:
+            m += 12
+            y -= 1
+        mt = [t for t in transactions if t.date.month == m and t.date.year == y]
+        monthly_history.append({
+            'month': months[m - 1][:3],
+            'income': sum(t.amount for t in mt if t.type == 'income'),
+            'expenses': sum(t.amount for t in mt if t.type == 'expense'),
+        })
+
     months = ['January','February','March','April','May','June',
               'July','August','September','October','November','December']
 
@@ -106,7 +120,8 @@ def dashboard():
         max_expense=max_expense, month=month, year=year, months=months,
         all_transactions=monthly, alerts=alerts, comparison=comparison,
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
-        income_count=income_count, expense_count=expense_count)
+        income_count=income_count, expense_count=expense_count,
+        monthly_history=monthly_history)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
