@@ -147,7 +147,8 @@ def add_transaction():
             date_str = request.form.get('date')
             tx_date = datetime.strptime(date_str, '%Y-%m-%d') if date_str else datetime.now()
             t = Transaction(user_id=current_user.id, type=t_type,
-                amount=amount, category=category, description=description, date=tx_date)
+                amount=amount, category=category, description=description,
+                date=tx_date, recurring=bool(request.form.get('recurring')))
             db.session.add(t)
             db.session.commit()
             flash('Transaction added!', 'success')
@@ -170,6 +171,7 @@ def edit_transaction(id):
         t.amount = request.form.get('amount', type=float)
         t.category = request.form.get('category')
         t.description = request.form.get('description', '')
+        t.recurring = bool(request.form.get('recurring'))
         date_str = request.form.get('date')
         if date_str:
             t.date = datetime.strptime(date_str, '%Y-%m-%d')

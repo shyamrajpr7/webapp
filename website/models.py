@@ -22,6 +22,7 @@ class Transaction(db.Model):
     category = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200), default='')
     date = db.Column(db.DateTime, default=datetime.utcnow)
+    recurring = db.Column(db.Boolean, default=False)
 
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)

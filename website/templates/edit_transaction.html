@@ -51,6 +51,11 @@
                 <input type="date" name="date" id="txDate" value="{{ transaction.date.strftime('%Y-%m-%d') }}"/>
             </div>
 
+            <div class="field" style="margin-bottom:16px; display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" name="recurring" id="recurring" value="1" style="width:auto; cursor:pointer;" {{ 'checked' if transaction.recurring }}/>
+                <label for="recurring" style="margin-bottom:0; cursor:pointer;">Recurring transaction</label>
+            </div>
+
             <div class="field">
                 <label>Description <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label>
                 <input type="text" name="description" value="{{ transaction.description or '' }}" placeholder="What was this for?"/>

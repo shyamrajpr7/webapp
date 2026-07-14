@@ -26,5 +26,10 @@ def create_app():
     with app.app_context():
         from . import models
         db.create_all()
+        try:
+            db.session.execute(db.text('ALTER TABLE transaction ADD COLUMN recurring BOOLEAN DEFAULT 0'))
+            db.session.commit()
+        except Exception:
+            pass
 
     return app
