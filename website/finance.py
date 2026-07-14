@@ -37,6 +37,9 @@ def dashboard():
     expenses = sum(t.amount for t in monthly if t.type == 'expense')
     balance = income - expenses
 
+    income_count = sum(1 for t in monthly if t.type == 'income')
+    expense_count = sum(1 for t in monthly if t.type == 'expense')
+
     prev_month = month - 1 if month > 1 else 12
     prev_year = year if month > 1 else year - 1
     prev_transactions = [t for t in transactions if t.date.month == prev_month and t.date.year == prev_year]
@@ -102,7 +105,8 @@ def dashboard():
         spending_data=spending_data, chart_data=chart_data,
         max_expense=max_expense, month=month, year=year, months=months,
         all_transactions=monthly, alerts=alerts, comparison=comparison,
-        expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES)
+        expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
+        income_count=income_count, expense_count=expense_count)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required

@@ -54,6 +54,7 @@
         </div>
         <div class="label">Income</div>
         <div class="value">${{ "%.2f"|format(income) }}</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">{{ income_count }} transaction{{ 's' if income_count != 1 }}</div>
     </div>
     <div class="card stat-card expense">
         <div class="stat-icon">
@@ -61,6 +62,7 @@
         </div>
         <div class="label">Expenses</div>
         <div class="value">${{ "%.2f"|format(expenses) }}</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">{{ expense_count }} transaction{{ 's' if expense_count != 1 }}</div>
     </div>
     <div class="card stat-card balance">
         <div class="stat-icon">
@@ -68,6 +70,7 @@
         </div>
         <div class="label">Balance</div>
         <div class="value">${{ "%.2f"|format(balance) }}</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">{{ income_count + expense_count }} total</div>
     </div>
 </div>
 
