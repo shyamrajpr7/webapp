@@ -270,3 +270,22 @@ def quick_add():
     else:
         flash('Invalid quick-add data.', 'error')
     return redirect(url_for('finance.dashboard'))
+
+@finance.route('/export-all-csv')
+@login_required
+def export_all_csv():
+    transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Date', 'Type', 'Category', 'Description', 'Recurring', 'Amount'])
+    for t in transactions:
+        writer.writerow([t.date.strftime('%Y-%m-%d'), t.type, t.category, t.description or '',
+            'Yes' if t.recurring else 'No', f'{t.amount:.2f}'])
+
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment;filename=all_transactions.csv'}
+    )
