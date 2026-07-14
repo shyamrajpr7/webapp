@@ -118,8 +118,10 @@ def add_transaction():
         elif not category:
             flash('Please select a category.', 'error')
         else:
+            date_str = request.form.get('date')
+            tx_date = datetime.strptime(date_str, '%Y-%m-%d') if date_str else datetime.now()
             t = Transaction(user_id=current_user.id, type=t_type,
-                amount=amount, category=category, description=description)
+                amount=amount, category=category, description=description, date=tx_date)
             db.session.add(t)
             db.session.commit()
             flash('Transaction added!', 'success')
@@ -142,6 +144,9 @@ def edit_transaction(id):
         t.amount = request.form.get('amount', type=float)
         t.category = request.form.get('category')
         t.description = request.form.get('description', '')
+        date_str = request.form.get('date')
+        if date_str:
+            t.date = datetime.strptime(date_str, '%Y-%m-%d')
         if not t.amount or t.amount <= 0:
             flash('Please enter a valid amount.', 'error')
         elif not t.category:
