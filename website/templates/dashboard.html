@@ -221,6 +221,13 @@
             <option value="{{ cat }}">{{ cat }}</option>
             {% endfor %}
         </select>
+        <select id="sortSelect" onchange="sortTransactions()" style="width:180px;">
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="amount-desc">Highest Amount</option>
+            <option value="amount-asc">Lowest Amount</option>
+            <option value="category-asc">Category A-Z</option>
+        </select>
     </div>
     {% if transactions %}
     <table>
@@ -229,7 +236,7 @@
         </thead>
         <tbody>
             {% for t in transactions %}
-            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}">
+            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}" data-date="{{ t.date.strftime('%Y%m%d') }}" data-amount="{{ t.amount }}">
                 <td style="color:var(--text-secondary);">{{ t.date.strftime('%b %d, %Y') }}</td>
                 <td><span class="badge {{ t.type }}">{{ t.type }}</span></td>
                 <td>
@@ -273,6 +280,22 @@ function filterTransactions() {
         const matchSearch = !search || row.dataset.desc.includes(search) || row.dataset.category.toLowerCase().includes(search);
         row.style.display = (matchType && matchCat && matchSearch) ? '' : 'none';
     });
+}
+function sortTransactions() {
+    const sort = document.getElementById('sortSelect').value;
+    const tbody = document.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.sort((a, b) => {
+        switch (sort) {
+            case 'date-desc': return b.dataset.date.localeCompare(a.dataset.date);
+            case 'date-asc': return a.dataset.date.localeCompare(b.dataset.date);
+            case 'amount-desc': return parseFloat(b.dataset.amount) - parseFloat(a.dataset.amount);
+            case 'amount-asc': return parseFloat(a.dataset.amount) - parseFloat(b.dataset.amount);
+            case 'category-asc': return a.dataset.category.localeCompare(b.dataset.category);
+            default: return 0;
+        }
+    });
+    rows.forEach(row => tbody.appendChild(row));
 }
 </script>
 {% endblock %}
