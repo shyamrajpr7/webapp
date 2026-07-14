@@ -40,6 +40,12 @@ def dashboard():
     income_count = sum(1 for t in monthly if t.type == 'income')
     expense_count = sum(1 for t in monthly if t.type == 'expense')
 
+    today = now.date()
+    today_txns = [t for t in monthly if t.date.date() == today]
+    today_expenses = sum(t.amount for t in today_txns if t.type == 'expense')
+    today_income = sum(t.amount for t in today_txns if t.type == 'income')
+    today_count = len(today_txns)
+
     prev_month = month - 1 if month > 1 else 12
     prev_year = year if month > 1 else year - 1
     prev_transactions = [t for t in transactions if t.date.month == prev_month and t.date.year == prev_year]
@@ -121,7 +127,8 @@ def dashboard():
         all_transactions=monthly, alerts=alerts, comparison=comparison,
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
         income_count=income_count, expense_count=expense_count,
-        monthly_history=monthly_history, category_colors=CATEGORY_COLORS)
+        monthly_history=monthly_history, category_colors=CATEGORY_COLORS,
+        today_expenses=today_expenses, today_income=today_income, today_count=today_count)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required

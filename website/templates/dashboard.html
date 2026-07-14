@@ -74,6 +74,25 @@
     </div>
 </div>
 
+<div class="card" style="margin-bottom:24px; background: linear-gradient(135deg, #eef2ff, #f0fdf4); border: 1px solid #c7d2fe;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary); margin-bottom:4px;">Today's Activity</div>
+            <div style="font-size:14px; color:var(--text-secondary);">{{ today_count }} transaction{{ 's' if today_count != 1 }} so far</div>
+        </div>
+        <div style="display:flex; gap:20px;">
+            <div style="text-align:right;">
+                <div style="font-size:11px; color:var(--text-muted);">Spent</div>
+                <div style="font-size:18px; font-weight:700; color:var(--red);">${{ "%.2f"|format(today_expenses) }}</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:11px; color:var(--text-muted);">Earned</div>
+                <div style="font-size:18px; font-weight:700; color:var(--green);">${{ "%.2f"|format(today_income) }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% if comparison.prev_income > 0 or comparison.prev_expenses > 0 %}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-header">
