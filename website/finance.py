@@ -121,7 +121,7 @@ def dashboard():
         all_transactions=monthly, alerts=alerts, comparison=comparison,
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
         income_count=income_count, expense_count=expense_count,
-        monthly_history=monthly_history)
+        monthly_history=monthly_history, category_colors=CATEGORY_COLORS)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
@@ -246,3 +246,18 @@ def export_csv():
         mimetype='text/csv',
         headers={'Content-Disposition': f'attachment;filename=transactions_{year}_{month:02d}.csv'}
     )
+
+@finance.route('/quick-add', methods=['POST'])
+@login_required
+def quick_add():
+    category = request.form.get('category')
+    amount = request.form.get('amount', type=float)
+    if category and amount and amount > 0:
+        t = Transaction(user_id=current_user.id, type='expense',
+            amount=amount, category=category, description='Quick add')
+        db.session.add(t)
+        db.session.commit()
+        flash(f'Quick added ${amount:.2f} to {category}!', 'success')
+    else:
+        flash('Invalid quick-add data.', 'error')
+    return redirect(url_for('finance.dashboard'))

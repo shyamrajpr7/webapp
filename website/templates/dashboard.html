@@ -226,6 +226,25 @@
     </div>
 </div>
 
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <h3>Quick Add Expense</h3>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        {% set presets = [('Food & Dining', 15), ('Transportation', 5), ('Entertainment', 10), ('Shopping', 25), ('Utilities', 50)] %}
+        {% for cat, amt in presets %}
+        <form method="POST" action="{{ url_for('finance.quick_add') }}" style="display:inline;">
+            <input type="hidden" name="category" value="{{ cat }}"/>
+            <input type="hidden" name="amount" value="{{ amt }}"/>
+            <button type="submit" class="btn btn-ghost btn-sm" style="display:flex; align-items:center; gap:6px;">
+                <div style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
+                {{ cat }} - ${{ amt }}
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h3>Recent Transactions</h3>
