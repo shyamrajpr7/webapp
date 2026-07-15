@@ -217,8 +217,8 @@
         </div>
         {% else %}
         <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <p>No expenses this month yet.</p>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            <p><strong>No expenses this month</strong><br>Start tracking your spending to see a breakdown here.</p>
         </div>
         {% endif %}
     </div>
@@ -248,8 +248,9 @@
             {% endfor %}
         {% else %}
         <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <p>No budgets set for this month.<br><a href="{{ url_for('finance.budgets') }}">Set up budgets</a></p>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/></svg>
+            <p><strong>No budgets set</strong><br>Set budgets to monitor your spending limits.</p>
+            <a href="{{ url_for('finance.budgets') }}" class="btn btn-primary btn-sm" style="margin-top:12px;">Set up budgets</a>
         </div>
         {% endif %}
     </div>
@@ -367,8 +368,9 @@
     </table>
     {% else %}
     <div class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        <p>No transactions yet.<br><a href="{{ url_for('finance.add_transaction') }}">Add your first transaction</a></p>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="12" cy="15" r="1"/></svg>
+        <p><strong>No transactions yet</strong><br>Start by adding your first income or expense.</p>
+        <a href="{{ url_for('finance.add_transaction') }}" class="btn btn-primary btn-sm" style="margin-top:12px;">Add your first transaction</a>
     </div>
     {% endif %}
 </div>
