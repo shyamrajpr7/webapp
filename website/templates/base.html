@@ -214,6 +214,40 @@
             </div>
         </div>
     </div>
+    <div id="shortcutsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px; max-width:420px; width:90%; box-shadow:var(--shadow-lg);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="font-size:16px; font-weight:600; color:var(--text);">Keyboard Shortcuts</h3>
+                <button onclick="closeShortcuts()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:20px; padding:4px;">&times;</button>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--bg); border-radius:var(--radius-xs);">
+                    <span style="font-size:13px; color:var(--text-secondary);">Add transaction</span>
+                    <kbd style="padding:3px 8px; background:var(--surface); border:1px solid var(--border); border-radius:4px; font-size:12px; font-family:inherit; color:var(--text-muted);">N</kbd>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--bg); border-radius:var(--radius-xs);">
+                    <span style="font-size:13px; color:var(--text-secondary);">Go to dashboard</span>
+                    <kbd style="padding:3px 8px; background:var(--surface); border:1px solid var(--border); border-radius:4px; font-size:12px; font-family:inherit; color:var(--text-muted);">D</kbd>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--bg); border-radius:var(--radius-xs);">
+                    <span style="font-size:13px; color:var(--text-secondary);">Go to budgets</span>
+                    <kbd style="padding:3px 8px; background:var(--surface); border:1px solid var(--border); border-radius:4px; font-size:12px; font-family:inherit; color:var(--text-muted);">B</kbd>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--bg); border-radius:var(--radius-xs);">
+                    <span style="font-size:13px; color:var(--text-secondary);">Toggle dark mode</span>
+                    <kbd style="padding:3px 8px; background:var(--surface); border:1px solid var(--border); border-radius:4px; font-size:12px; font-family:inherit; color:var(--text-muted);">T</kbd>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--bg); border-radius:var(--radius-xs);">
+                    <span style="font-size:13px; color:var(--text-secondary);">Focus search</span>
+                    <kbd style="padding:3px 8px; background:var(--surface); border:1px solid var(--border); border-radius:4px; font-size:12px; font-family:inherit; color:var(--text-muted);">/</kbd>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--bg); border-radius:var(--radius-xs);">
+                    <span style="font-size:13px; color:var(--text-secondary);">Show this help</span>
+                    <kbd style="padding:3px 8px; background:var(--surface); border:1px solid var(--border); border-radius:4px; font-size:12px; font-family:inherit; color:var(--text-muted);">?</kbd>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
     function toggleTheme() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -238,8 +272,36 @@
     function closeModal() {
         document.getElementById('confirmModal').style.display = 'none';
     }
+    function closeShortcuts() {
+        document.getElementById('shortcutsModal').style.display = 'none';
+    }
     document.getElementById('confirmModal').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
+    });
+    document.getElementById('shortcutsModal').addEventListener('click', function(e) {
+        if (e.target === this) closeShortcuts();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+        if (e.key === '?') {
+            e.preventDefault();
+            document.getElementById('shortcutsModal').style.display = 'flex';
+        } else if (e.key === 'Escape') {
+            closeModal();
+            closeShortcuts();
+        } else if (e.key === 'n' || e.key === 'N') {
+            window.location.href = '{{ url_for("finance.add_transaction") }}';
+        } else if (e.key === 'd' || e.key === 'D') {
+            window.location.href = '{{ url_for("finance.dashboard") }}';
+        } else if (e.key === 'b' || e.key === 'B') {
+            window.location.href = '{{ url_for("finance.budgets") }}';
+        } else if (e.key === 't' || e.key === 'T') {
+            toggleTheme();
+        } else if (e.key === '/') {
+            e.preventDefault();
+            var search = document.getElementById('searchInput');
+            if (search) search.focus();
+        }
     });
     </script>
 </body>
