@@ -298,8 +298,14 @@
 
 <div class="card">
     <div class="card-header">
-        <h3>Recent Transactions</h3>
-        <a href="{{ url_for('finance.add_transaction') }}" class="btn btn-primary btn-sm">
+        <h3>Recent Transactions <span style="font-weight:400; font-size:13px; color:var(--text-muted);">({{ all_transactions|length }})</span></h3>
+        <div style="display:flex; gap:8px; align-items:center;">
+            {% if all_transactions|length > 10 %}
+            <button id="toggleTxns" onclick="toggleTransactions()" class="btn btn-ghost btn-sm" style="font-size:12px;">
+                Show All ({{ all_transactions|length }})
+            </button>
+            {% endif %}
+            <a href="{{ url_for('finance.add_transaction') }}" class="btn btn-primary btn-sm">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Transaction
         </a>
@@ -328,14 +334,14 @@
             <option value="category-asc">Category A-Z</option>
         </select>
     </div>
-    {% if transactions %}
+    {% if all_transactions %}
     <table>
         <thead>
             <tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th style="text-align:right;">Amount</th><th style="width:70px;"></th></tr>
         </thead>
         <tbody>
-            {% for t in transactions %}
-            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}" data-date="{{ t.date.strftime('%Y%m%d') }}" data-amount="{{ t.amount }}">
+            {% for t in all_transactions %}
+            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}" data-date="{{ t.date.strftime('%Y%m%d') }}" data-amount="{{ t.amount }}" data-index="{{ loop.index }}" {{ 'style="display:none;"' if loop.index > 10 }}>
                 <td style="color:var(--text-secondary);">{{ t.date.strftime('%b %d, %Y') }}</td>
                 <td><span class="badge {{ t.type }}">{{ t.type }}</span></td>
                 <td>
@@ -375,6 +381,22 @@
     {% endif %}
 </div>
 <script>
+var showingAll = false;
+function toggleTransactions() {
+    showingAll = !showingAll;
+    var btn = document.getElementById('toggleTxns');
+    document.querySelectorAll('tbody tr[data-index]').forEach(function(row) {
+        var idx = parseInt(row.dataset.index);
+        if (showingAll) {
+            row.style.display = '';
+        } else if (idx > 10) {
+            row.style.display = 'none';
+        }
+    });
+    if (btn) {
+        btn.textContent = showingAll ? 'Show Less' : 'Show All ({{ all_transactions|length }})';
+    }
+}
 function filterTransactions() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const type = document.getElementById('typeFilter').value;
