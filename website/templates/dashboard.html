@@ -74,7 +74,13 @@
         </div>
         <div class="label">Balance</div>
         <div class="value">${{ "%.2f"|format(balance) }}</div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">{{ income_count + expense_count }} total</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+            {% if income > 0 %}
+            Savings rate: <strong style="color:{{ 'var(--green)' if savings_rate >= 20 else 'var(--amber)' if savings_rate >= 0 else 'var(--red)' }};">{{ "%.1f"|format(savings_rate) }}%</strong>
+            {% else %}
+            {{ income_count + expense_count }} total
+            {% endif %}
+        </div>
     </div>
 </div>
 

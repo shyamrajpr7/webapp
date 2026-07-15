@@ -36,6 +36,7 @@ def dashboard():
     income = sum(t.amount for t in monthly if t.type == 'income')
     expenses = sum(t.amount for t in monthly if t.type == 'expense')
     balance = income - expenses
+    savings_rate = ((income - expenses) / income * 100) if income > 0 else 0
 
     income_count = sum(1 for t in monthly if t.type == 'income')
     expense_count = sum(1 for t in monthly if t.type == 'expense')
@@ -122,7 +123,7 @@ def dashboard():
 
     return render_template('dashboard.html', user=current_user, transactions=recent,
         income=income, expenses=expenses, balance=balance,
-        spending_data=spending_data, chart_data=chart_data,
+        savings_rate=savings_rate, spending_data=spending_data, chart_data=chart_data,
         max_expense=max_expense, month=month, year=year, months=months,
         all_transactions=monthly, alerts=alerts, comparison=comparison,
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
