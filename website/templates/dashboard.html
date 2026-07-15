@@ -103,6 +103,43 @@
     </div>
 </div>
 
+{% if income > 0 or expenses > 0 %}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <h3>Monthly Overview</h3>
+    </div>
+    {% set total = income + expenses if income + expenses > 0 else 1 %}
+    {% set inc_pct = (income / total * 100) if total > 0 else 0 %}
+    {% set exp_pct = (expenses / total * 100) if total > 0 else 0 %}
+    <div style="margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-size:13px; font-weight:500; color:var(--green);">Income ${{ "%.0f"|format(income) }}</span>
+            <span style="font-size:13px; font-weight:500; color:var(--red);">Expenses ${{ "%.0f"|format(expenses) }}</span>
+        </div>
+        <div style="display:flex; height:24px; border-radius:12px; overflow:hidden; background:var(--bg);">
+            <div style="width:{{ inc_pct }}%; background:linear-gradient(90deg, #10b981, #34d399); transition:width 0.6s ease; display:flex; align-items:center; justify-content:center;">
+                {% if inc_pct > 10 %}
+                <span style="font-size:11px; font-weight:600; color:#fff;">{{ "%.0f"|format(inc_pct) }}%</span>
+                {% endif %}
+            </div>
+            <div style="width:{{ exp_pct }}%; background:linear-gradient(90deg, #ef4444, #f87171); transition:width 0.6s ease; display:flex; align-items:center; justify-content:center;">
+                {% if exp_pct > 10 %}
+                <span style="font-size:11px; font-weight:600; color:#fff;">{{ "%.0f"|format(exp_pct) }}%</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div style="display:flex; gap:16px; justify-content:center;">
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
+            <div style="width:10px; height:10px; border-radius:2px; background:var(--green);"></div> Income ({{ "%.0f"|format(inc_pct) }}%)
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
+            <div style="width:10px; height:10px; border-radius:2px; background:var(--red);"></div> Expenses ({{ "%.0f"|format(exp_pct) }}%)
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% if comparison.prev_income > 0 or comparison.prev_expenses > 0 %}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-header">
