@@ -306,9 +306,9 @@
     <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
         <input type="text" id="searchInput" placeholder="Search transactions..." onkeyup="filterTransactions()" style="flex:1; min-width:200px;"/>
         <select id="typeFilter" onchange="filterTransactions()" style="width:140px;">
-            <option value="all">All Types</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
+            <option value="all">All ({{ income_count + expense_count }})</option>
+            <option value="income">Income ({{ income_count }})</option>
+            <option value="expense">Expense ({{ expense_count }})</option>
         </select>
         <select id="catFilter" onchange="filterTransactions()" style="width:180px;">
             <option value="all">All Categories</option>
