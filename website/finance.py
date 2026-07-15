@@ -271,6 +271,21 @@ def quick_add():
         flash('Invalid quick-add data.', 'error')
     return redirect(url_for('finance.dashboard'))
 
+@finance.route('/quick-add-income', methods=['POST'])
+@login_required
+def quick_add_income():
+    category = request.form.get('category')
+    amount = request.form.get('amount', type=float)
+    if category and amount and amount > 0:
+        t = Transaction(user_id=current_user.id, type='income',
+            amount=amount, category=category, description='Quick add')
+        db.session.add(t)
+        db.session.commit()
+        flash(f'Quick added ${amount:.2f} income to {category}!', 'success')
+    else:
+        flash('Invalid quick-add data.', 'error')
+    return redirect(url_for('finance.dashboard'))
+
 @finance.route('/export-all-csv')
 @login_required
 def export_all_csv():
