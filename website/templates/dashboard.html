@@ -339,8 +339,10 @@
                 <td><span class="badge {{ t.type }}">{{ t.type }}</span></td>
                 <td>
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <div style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(t.category, '#6b7280') }};"></div>
-                        <span style="font-weight:500; font-size:13px;">{{ t.category }}</span>
+                        <span style="display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:500; background:{{ category_colors.get(t.category, '#6b7280') }}22; color:{{ category_colors.get(t.category, '#6b7280') }};">
+                            <span style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(t.category, '#6b7280') }};"></span>
+                            {{ t.category }}
+                        </span>
                         {% if t.recurring %}
                         <span style="font-size:10px; padding:2px 6px; border-radius:10px; background:#eef2ff; color:var(--primary); font-weight:600;">R</span>
                         {% endif %}
