@@ -52,6 +52,7 @@ def dashboard():
 
     expense_transactions = [t for t in monthly if t.type == 'expense']
     largest_expense = max(expense_transactions, key=lambda t: t.amount) if expense_transactions else None
+    recurring_count = sum(1 for t in monthly if t.recurring)
 
     prev_month = month - 1 if month > 1 else 12
     prev_year = year if month > 1 else year - 1
@@ -140,7 +141,8 @@ def dashboard():
         today_expenses=today_expenses, today_income=today_income, today_count=today_count,
         avg_daily_expense=avg_daily_expense, day_of_month=day_of_month,
         largest_expense=largest_expense,
-        total_budget=total_budget, budget_usage_pct=budget_usage_pct)
+        total_budget=total_budget, budget_usage_pct=budget_usage_pct,
+        recurring_count=recurring_count)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required

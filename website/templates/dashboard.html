@@ -89,7 +89,7 @@
         <div>
             <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary); margin-bottom:4px;">Today's Activity</div>
             <div style="font-size:14px; color:var(--text-secondary);">{{ today_count }} transaction{{ 's' if today_count != 1 }} so far</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Day {{ day_of_month }} of {{ months[month - 1] }}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Day {{ day_of_month }} of {{ months[month - 1] }}{% if recurring_count > 0 %} &middot; <span style="color:var(--primary);">{{ recurring_count }} recurring</span>{% endif %}</div>
         </div>
         <div style="display:flex; gap:20px;">
             <div style="text-align:right;">
