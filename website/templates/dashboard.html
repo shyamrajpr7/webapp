@@ -185,6 +185,24 @@
 </div>
 {% endif %}
 
+{% if top_categories %}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <h3>Top Spending Categories</h3>
+    </div>
+    <div style="display:flex; gap:16px;">
+        {% for cat, amount in top_categories %}
+        <div style="flex:1; text-align:center; padding:12px; background:var(--bg); border-radius:var(--radius-sm);">
+            <div style="width:12px; height:12px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }}; margin:0 auto 8px;"></div>
+            <div style="font-size:13px; font-weight:500; color:var(--text);">{{ cat }}</div>
+            <div style="font-size:18px; font-weight:700; color:var(--red); margin-top:4px;">${{ "%.0f"|format(amount) }}</div>
+            <div style="font-size:11px; color:var(--text-muted);">{{ "%.0f"|format(amount / expenses * 100 if expenses > 0 else 0) }}% of total</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 {% if comparison.prev_income > 0 or comparison.prev_expenses > 0 %}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-header">
