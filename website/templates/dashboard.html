@@ -123,6 +123,31 @@
 </div>
 {% endif %}
 
+{% if total_budget > 0 %}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <h3>Monthly Spending Goal</h3>
+        <span style="font-size:13px; font-weight:600; color:{{ 'var(--red)' if budget_usage_pct > 100 else 'var(--amber)' if budget_usage_pct > 80 else 'var(--green)' }};">{{ "%.0f"|format(budget_usage_pct) }}% used</span>
+    </div>
+    <div style="margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-size:13px; color:var(--text-secondary);">${{ "%.0f"|format(expenses) }} spent</span>
+            <span style="font-size:13px; color:var(--text-secondary);">${{ "%.0f"|format(total_budget) }} budgeted</span>
+        </div>
+        <div style="background:var(--bg); border-radius:8px; height:12px; overflow:hidden;">
+            <div style="height:100%; width:{{ [budget_usage_pct, 100]|min }}%; background:{{ 'var(--red)' if budget_usage_pct > 100 else 'var(--amber)' if budget_usage_pct > 80 else 'var(--green)' }}; border-radius:8px; transition:width 0.6s ease;"></div>
+        </div>
+    </div>
+    {% if budget_usage_pct > 100 %}
+    <div style="font-size:12px; color:var(--red); font-weight:500;">Over budget by ${{ "%.0f"|format(expenses - total_budget) }}</div>
+    {% elif budget_usage_pct > 80 %}
+    <div style="font-size:12px; color:#b45309; font-weight:500;">${{ "%.0f"|format(total_budget - expenses) }} remaining</div>
+    {% else %}
+    <div style="font-size:12px; color:var(--green); font-weight:500;">${{ "%.0f"|format(total_budget - expenses) }} left to spend</div>
+    {% endif %}
+</div>
+{% endif %}
+
 {% if income > 0 or expenses > 0 %}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-header">

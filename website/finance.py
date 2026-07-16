@@ -81,6 +81,8 @@ def dashboard():
 
     budgets = Budget.query.filter_by(user_id=current_user.id, month=month, year=year).all()
     budget_map = {b.category: b.amount for b in budgets}
+    total_budget = sum(budget_map.values())
+    budget_usage_pct = (expenses / total_budget * 100) if total_budget > 0 else 0
 
     spending_data = []
     for cat in EXPENSE_CATEGORIES:
@@ -137,7 +139,8 @@ def dashboard():
         monthly_history=monthly_history, category_colors=CATEGORY_COLORS,
         today_expenses=today_expenses, today_income=today_income, today_count=today_count,
         avg_daily_expense=avg_daily_expense, day_of_month=day_of_month,
-        largest_expense=largest_expense)
+        largest_expense=largest_expense,
+        total_budget=total_budget, budget_usage_pct=budget_usage_pct)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
