@@ -50,6 +50,9 @@ def dashboard():
     day_of_month = now.day
     avg_daily_expense = expenses / day_of_month if day_of_month > 0 else 0
 
+    expense_transactions = [t for t in monthly if t.type == 'expense']
+    largest_expense = max(expense_transactions, key=lambda t: t.amount) if expense_transactions else None
+
     prev_month = month - 1 if month > 1 else 12
     prev_year = year if month > 1 else year - 1
     prev_transactions = [t for t in transactions if t.date.month == prev_month and t.date.year == prev_year]
@@ -133,7 +136,8 @@ def dashboard():
         income_count=income_count, expense_count=expense_count,
         monthly_history=monthly_history, category_colors=CATEGORY_COLORS,
         today_expenses=today_expenses, today_income=today_income, today_count=today_count,
-        avg_daily_expense=avg_daily_expense, day_of_month=day_of_month)
+        avg_daily_expense=avg_daily_expense, day_of_month=day_of_month,
+        largest_expense=largest_expense)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
