@@ -26,6 +26,16 @@
         </div>
     </div>
     <div class="card" style="padding:24px 28px;">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
+            <form method="POST" action="{{ url_for('finance.copy_budgets', month=month, year=year) }}" style="display:inline;">
+                <input type="hidden" name="month" value="{{ month }}"/>
+                <input type="hidden" name="year" value="{{ year }}"/>
+                <button type="submit" class="btn btn-ghost btn-sm">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy Previous Month
+                </button>
+            </form>
+        </div>
         <form method="POST">
             {% for cat in expense_categories %}
             <div class="budget-row">

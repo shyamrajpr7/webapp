@@ -239,6 +239,29 @@ def budgets():
         expense_categories=EXPENSE_CATEGORIES, budget_map=budget_map,
         category_colors=CATEGORY_COLORS, month=month, year=year, months=months)
 
+@finance.route('/copy-budgets', methods=['POST'])
+@login_required
+def copy_budgets():
+    now = datetime.now()
+    month = request.form.get('month', now.month, type=int)
+    year = request.form.get('year', now.year, type=int)
+
+    prev_month = month - 1 if month > 1 else 12
+    prev_year = year if month > 1 else year - 1
+
+    prev_budgets = Budget.query.filter_by(user_id=current_user.id, month=prev_month, year=prev_year).all()
+    copied = 0
+    for pb in prev_budgets:
+        existing = Budget.query.filter_by(user_id=current_user.id, category=pb.category, month=month, year=year).first()
+        if existing:
+            existing.amount = pb.amount
+        else:
+            db.session.add(Budget(user_id=current_user.id, category=pb.category, amount=pb.amount, month=month, year=year))
+        copied += 1
+    db.session.commit()
+    flash(f'Copied {copied} budget(s) from {["","January","February","March","April","May","June","July","August","September","October","November","December"][prev_month]}!', 'success')
+    return redirect(url_for('finance.budgets', month=month, year=year))
+
 @finance.route('/export-csv')
 @login_required
 def export_csv():
