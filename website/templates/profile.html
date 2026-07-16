@@ -22,6 +22,22 @@
                 <div style="font-size:20px; font-weight:700; color:var(--primary);">{{ tx_count }}</div>
                 <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Transactions</div>
             </div>
+            <div style="text-align:center; flex:1;">
+                <div style="font-size:20px; font-weight:700; color:var(--green);">${{ "%.0f"|format(total_income) }}</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Total Income</div>
+            </div>
+            <div style="text-align:center; flex:1;">
+                <div style="font-size:20px; font-weight:700; color:var(--red);">${{ "%.0f"|format(total_expenses) }}</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Total Spent</div>
+            </div>
+        </div>
+        <div style="display:flex; gap:24px; padding:12px 16px; margin-top:8px;">
+            <div style="font-size:12px; color:var(--text-muted);">
+                <strong style="color:var(--text-secondary);">{{ account_days }}</strong> day{{ 's' if account_days != 1 }} active
+            </div>
+            <div style="font-size:12px; color:var(--text-muted);">
+                <strong style="color:var(--text-secondary);">{{ categories_used }}</strong> categor{{ 'ies' if categories_used != 1 else 'y' }} used
+            </div>
         </div>
     </div>
 

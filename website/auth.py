@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 from . import db
 from .models import User, Transaction, Budget
 
@@ -96,4 +97,12 @@ def profile():
                 return redirect(url_for('auth.profile'))
 
     tx_count = Transaction.query.filter_by(user_id=current_user.id).count()
-    return render_template('profile.html', user=current_user, tx_count=tx_count)
+    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+    total_income = sum(t.amount for t in transactions if t.type == 'income')
+    total_expenses = sum(t.amount for t in transactions if t.type == 'expense')
+    first_tx = min(transactions, key=lambda t: t.date) if transactions else None
+    account_days = (datetime.utcnow() - first_tx.date).days + 1 if first_tx else 0
+    categories_used = len(set(t.category for t in transactions))
+    return render_template('profile.html', user=current_user, tx_count=tx_count,
+        total_income=total_income, total_expenses=total_expenses,
+        account_days=account_days, categories_used=categories_used)
