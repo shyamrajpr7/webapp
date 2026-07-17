@@ -63,8 +63,6 @@ def dashboard():
     largest_expense = max(expense_transactions, key=lambda t: t.amount) if expense_transactions else None
     recurring_count = sum(1 for t in monthly if t.recurring)
 
-    top_categories = sorted(expense_by_cat.items(), key=lambda x: x[1], reverse=True)[:3]
-
     prev_month = month - 1 if month > 1 else 12
     prev_year = year if month > 1 else year - 1
     prev_transactions = [t for t in transactions if t.date.month == prev_month and t.date.year == prev_year]
@@ -90,6 +88,14 @@ def dashboard():
     for t in monthly:
         if t.type == 'expense':
             expense_by_cat[t.category] = expense_by_cat.get(t.category, 0) + t.amount
+
+    category_counts = {}
+    for t in expense_transactions:
+        category_counts[t.category] = category_counts.get(t.category, 0) + 1
+    most_active_category = max(category_counts, key=category_counts.get) if category_counts else None
+    most_active_count = category_counts.get(most_active_category, 0) if most_active_category else 0
+
+    top_categories = sorted(expense_by_cat.items(), key=lambda x: x[1], reverse=True)[:3]
 
     budgets = Budget.query.filter_by(user_id=current_user.id, month=month, year=year).all()
     budget_map = {b.category: b.amount for b in budgets}
@@ -156,7 +162,8 @@ def dashboard():
         recurring_count=recurring_count, top_categories=top_categories,
         days_left=days_left, daily_allowance=daily_allowance,
         days_in_month=days_in_month, remaining_budget=remaining_budget,
-        spending_pace_pct=spending_pace_pct)
+        spending_pace_pct=spending_pace_pct,
+        most_active_category=most_active_category, most_active_count=most_active_count)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required

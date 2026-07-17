@@ -155,6 +155,22 @@
 </div>
 {% endif %}
 
+{% if most_active_category %}
+<div class="card" style="margin-bottom:24px; background: linear-gradient(135deg, #faf5ff, #f5f3ff); border: 1px solid #ddd6fe;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:4px;">Most Active Category</div>
+            <div style="font-size:14px; color:var(--text-secondary);">{{ most_active_category }} &mdash; {{ most_active_count }} transaction{{ 's' if most_active_count != 1 }}</div>
+        </div>
+        <div style="text-align:right;">
+            <div style="width:40px; height:40px; border-radius:50%; background:{{ category_colors.get(most_active_category, '#6b7280') }}22; display:flex; align-items:center; justify-content:center;">
+                <div style="width:16px; height:16px; border-radius:50%; background:{{ category_colors.get(most_active_category, '#6b7280') }};"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% if total_budget > 0 %}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-header">
