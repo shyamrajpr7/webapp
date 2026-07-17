@@ -31,6 +31,9 @@ def dashboard():
     month = request.args.get('month', now.month, type=int)
     year = request.args.get('year', now.year, type=int)
 
+    months = ['January','February','March','April','May','June',
+              'July','August','September','October','November','December']
+
     transactions = Transaction.query.filter_by(user_id=current_user.id).all()
     monthly = [t for t in transactions if t.date.month == month and t.date.year == year]
 
@@ -161,9 +164,6 @@ def dashboard():
             'income': sum(t.amount for t in mt if t.type == 'income'),
             'expenses': sum(t.amount for t in mt if t.type == 'expense'),
         })
-
-    months = ['January','February','March','April','May','June',
-              'July','August','September','October','November','December']
 
     return render_template('dashboard.html', user=current_user, transactions=recent,
         income=income, expenses=expenses, balance=balance,
