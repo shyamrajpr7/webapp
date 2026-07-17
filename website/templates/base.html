@@ -245,6 +245,10 @@
                     <span style="font-size:13px; color:var(--text-secondary);">Show this help</span>
                     <kbd style="padding:3px 8px; background:var(--surface); border:1px solid var(--border); border-radius:4px; font-size:12px; font-family:inherit; color:var(--text-muted);">?</kbd>
                 </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--bg); border-radius:var(--radius-xs);">
+                    <span style="font-size:13px; color:var(--text-secondary);">Logout</span>
+                    <kbd style="padding:3px 8px; background:var(--surface); border:1px solid var(--border); border-radius:4px; font-size:12px; font-family:inherit; color:var(--text-muted);">L</kbd>
+                </div>
             </div>
         </div>
     </div>
@@ -297,6 +301,8 @@
             window.location.href = '{{ url_for("finance.budgets") }}';
         } else if (e.key === 't' || e.key === 'T') {
             toggleTheme();
+        } else if (e.key === 'l' || e.key === 'L') {
+            window.location.href = '{{ url_for("auth.logout") }}';
         } else if (e.key === '/') {
             e.preventDefault();
             var search = document.getElementById('searchInput');
