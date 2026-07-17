@@ -38,6 +38,9 @@
             <div style="font-size:12px; color:var(--text-muted);">
                 <strong style="color:var(--text-secondary);">{{ categories_used }}</strong> categor{{ 'ies' if categories_used != 1 else 'y' }} used
             </div>
+            <div style="font-size:12px; color:var(--text-muted);">
+                Avg expense: <strong style="color:var(--text-secondary);">${{ "%.2f"|format(avg_expense) }}</strong>
+            </div>
         </div>
     </div>
 
