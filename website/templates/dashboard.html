@@ -448,6 +448,8 @@
             <option value="amount-desc">Highest Amount</option>
             <option value="amount-asc">Lowest Amount</option>
             <option value="category-asc">Category A-Z</option>
+            <option value="desc-asc">Description A-Z</option>
+            <option value="desc-desc">Description Z-A</option>
         </select>
     </div>
     {% if all_transactions %}
@@ -535,6 +537,8 @@ function sortTransactions() {
             case 'amount-desc': return parseFloat(b.dataset.amount) - parseFloat(a.dataset.amount);
             case 'amount-asc': return parseFloat(a.dataset.amount) - parseFloat(b.dataset.amount);
             case 'category-asc': return a.dataset.category.localeCompare(b.dataset.category);
+            case 'desc-asc': return (a.dataset.desc || 'zzz').localeCompare(b.dataset.desc || 'zzz');
+            case 'desc-desc': return (b.dataset.desc || '').localeCompare(a.dataset.desc || '');
             default: return 0;
         }
     });
