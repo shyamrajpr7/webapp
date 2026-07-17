@@ -108,6 +108,22 @@
     </div>
 </div>
 
+{% if total_budget > 0 %}
+<div class="card" style="margin-bottom:24px; background: linear-gradient(135deg, #f0f9ff, #eff6ff); border: 1px solid #bfdbfe;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--blue); margin-bottom:4px;">Days Left in {{ months[month - 1] }}</div>
+            <div style="font-size:14px; color:var(--text-secondary);">{{ days_left }} day{{ 's' if days_left != 1 }} remaining &middot; {{ day_of_month }}/{{ days_in_month }} days elapsed</div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:11px; color:var(--text-muted);">Daily Allowance</div>
+            <div style="font-size:22px; font-weight:700; color:{{ 'var(--green)' if daily_allowance >= 0 else 'var(--red)' }};">${{ "%.2f"|format(daily_allowance) }}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${{ "%.0f"|format(remaining_budget) }} left to spend</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% if largest_expense %}
 <div class="card" style="margin-bottom:24px; background: linear-gradient(135deg, #fef2f2, #fff7ed); border: 1px solid #fecaca;">
     <div style="display:flex; justify-content:space-between; align-items:center;">

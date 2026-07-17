@@ -48,6 +48,12 @@ def dashboard():
     today_count = len(today_txns)
 
     day_of_month = now.day
+    import calendar
+    days_in_month = calendar.monthrange(year, month)[1]
+    days_left = days_in_month - day_of_month
+    remaining_budget = total_budget - expenses if total_budget > 0 else 0
+    daily_allowance = remaining_budget / days_left if days_left > 0 and total_budget > 0 else 0
+
     avg_daily_expense = expenses / day_of_month if day_of_month > 0 else 0
 
     expense_transactions = [t for t in monthly if t.type == 'expense']
@@ -144,7 +150,9 @@ def dashboard():
         avg_daily_expense=avg_daily_expense, day_of_month=day_of_month,
         largest_expense=largest_expense,
         total_budget=total_budget, budget_usage_pct=budget_usage_pct,
-        recurring_count=recurring_count, top_categories=top_categories)
+        recurring_count=recurring_count, top_categories=top_categories,
+        days_left=days_left, daily_allowance=daily_allowance,
+        days_in_month=days_in_month, remaining_budget=remaining_budget)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
