@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 import csv
 import io
+import calendar
 from . import db
 from .models import Transaction, Budget
 
@@ -48,9 +49,15 @@ def dashboard():
     today_count = len(today_txns)
 
     day_of_month = now.day
-    import calendar
     days_in_month = calendar.monthrange(year, month)[1]
     days_left = days_in_month - day_of_month
+
+    expense_transactions = [t for t in monthly if t.type == 'expense']
+
+    budgets = Budget.query.filter_by(user_id=current_user.id, month=month, year=year).all()
+    budget_map = {b.category: b.amount for b in budgets}
+    total_budget = sum(budget_map.values())
+
     remaining_budget = total_budget - expenses if total_budget > 0 else 0
     daily_allowance = remaining_budget / days_left if days_left > 0 and total_budget > 0 else 0
 
@@ -58,8 +65,6 @@ def dashboard():
 
     expected_pace = (total_budget * day_of_month / days_in_month) if total_budget > 0 and days_in_month > 0 else 0
     spending_pace_pct = (expenses / expected_pace * 100) if expected_pace > 0 else 0
-
-    expense_transactions = [t for t in monthly if t.type == 'expense']
     largest_expense = max(expense_transactions, key=lambda t: t.amount) if expense_transactions else None
     recurring_count = sum(1 for t in monthly if t.recurring)
 
@@ -113,9 +118,6 @@ def dashboard():
 
     top_categories = sorted(expense_by_cat.items(), key=lambda x: x[1], reverse=True)[:3]
 
-    budgets = Budget.query.filter_by(user_id=current_user.id, month=month, year=year).all()
-    budget_map = {b.category: b.amount for b in budgets}
-    total_budget = sum(budget_map.values())
     budget_usage_pct = (expenses / total_budget * 100) if total_budget > 0 else 0
 
     spending_data = []
