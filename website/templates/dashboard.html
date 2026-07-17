@@ -121,6 +121,22 @@
             <div style="font-size:11px; color:var(--text-muted);">${{ "%.0f"|format(remaining_budget) }} left to spend</div>
         </div>
     </div>
+    {% if total_budget > 0 and day_of_month > 1 %}
+    <div style="margin-top:12px; padding-top:12px; border-top:1px solid #bfdbfe;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; color:var(--text-muted);">Spending pace</span>
+            <span style="font-size:12px; font-weight:600; color:{{ 'var(--red)' if spending_pace_pct > 110 else '#b45309' if spending_pace_pct > 90 else 'var(--green)' }};">{{ "%.0f"|format(spending_pace_pct) }}% of expected</span>
+        </div>
+        <div style="background:#e0e7ff; border-radius:6px; height:6px; overflow:hidden;">
+            <div style="height:100%; width:{{ [spending_pace_pct, 150]|min / 1.5 }}%; background:{{ 'var(--red)' if spending_pace_pct > 110 else '#b45309' if spending_pace_pct > 90 else 'var(--green)' }}; border-radius:6px;"></div>
+        </div>
+        {% if spending_pace_pct > 110 %}
+        <div style="font-size:11px; color:var(--red); margin-top:6px; font-weight:500;">Spending faster than planned &mdash; you may run out of budget early</div>
+        {% elif spending_pace_pct < 70 and day_of_month > 10 %}
+        <div style="font-size:11px; color:var(--green); margin-top:6px; font-weight:500;">Spending well under pace &mdash; on track to save</div>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 {% endif %}
 

@@ -56,6 +56,9 @@ def dashboard():
 
     avg_daily_expense = expenses / day_of_month if day_of_month > 0 else 0
 
+    expected_pace = (total_budget * day_of_month / days_in_month) if total_budget > 0 and days_in_month > 0 else 0
+    spending_pace_pct = (expenses / expected_pace * 100) if expected_pace > 0 else 0
+
     expense_transactions = [t for t in monthly if t.type == 'expense']
     largest_expense = max(expense_transactions, key=lambda t: t.amount) if expense_transactions else None
     recurring_count = sum(1 for t in monthly if t.recurring)
@@ -152,7 +155,8 @@ def dashboard():
         total_budget=total_budget, budget_usage_pct=budget_usage_pct,
         recurring_count=recurring_count, top_categories=top_categories,
         days_left=days_left, daily_allowance=daily_allowance,
-        days_in_month=days_in_month, remaining_budget=remaining_budget)
+        days_in_month=days_in_month, remaining_budget=remaining_budget,
+        spending_pace_pct=spending_pace_pct)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
