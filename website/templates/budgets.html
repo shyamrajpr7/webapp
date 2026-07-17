@@ -15,7 +15,12 @@
             <h1 style="font-size:24px; font-weight:700; color:var(--text);">Budgets</h1>
             <p style="font-size:14px; color:var(--text-muted); margin-top:2px;">Set spending limits for each category</p>
         </div>
-        <div class="month-nav" style="margin-bottom:0;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <a href="{{ url_for('finance.export_csv', month=month, year=year) }}" class="btn btn-ghost btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+            </a>
+            <div class="month-nav" style="margin-bottom:0;">
             {% set prev_month = month - 1 if month > 1 else 12 %}
             {% set prev_year = year if month > 1 else year - 1 %}
             {% set next_month = month + 1 if month < 12 else 1 %}
