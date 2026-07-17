@@ -95,6 +95,22 @@ def dashboard():
     most_active_category = max(category_counts, key=category_counts.get) if category_counts else None
     most_active_count = category_counts.get(most_active_category, 0) if most_active_category else 0
 
+    summary_parts = []
+    if income > 0 or expenses > 0:
+        if income > 0:
+            summary_parts.append(f"earned ${income:,.0f}")
+        if expenses > 0:
+            summary_parts.append(f"spent ${expenses:,.0f}")
+        if balance >= 0 and income > 0:
+            summary_parts.append(f"with a {savings_rate:.0f}% savings rate")
+        elif balance < 0:
+            summary_parts.append(f"overspending by ${abs(balance):,.0f}")
+        if largest_expense:
+            summary_parts.append(f"biggest expense was ${largest_expense.amount:,.0f} on {largest_expense.category}")
+        if most_active_category and most_active_count > 1:
+            summary_parts.append(f"most transactions in {most_active_category}")
+    monthly_summary = f"This month you've {' '.join(summary_parts)}." if summary_parts else f"No activity recorded for {months[month - 1]} yet."
+
     top_categories = sorted(expense_by_cat.items(), key=lambda x: x[1], reverse=True)[:3]
 
     budgets = Budget.query.filter_by(user_id=current_user.id, month=month, year=year).all()
@@ -163,7 +179,8 @@ def dashboard():
         days_left=days_left, daily_allowance=daily_allowance,
         days_in_month=days_in_month, remaining_budget=remaining_budget,
         spending_pace_pct=spending_pace_pct,
-        most_active_category=most_active_category, most_active_count=most_active_count)
+        most_active_category=most_active_category, most_active_count=most_active_count,
+        monthly_summary=monthly_summary)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
