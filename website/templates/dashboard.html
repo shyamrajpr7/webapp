@@ -308,8 +308,7 @@
     <div class="card-header">
         <h3>Last 6 Months</h3>
     </div>
-    {% set max_val = monthly_history | map(attribute='income') | zip(monthly_history | map(attribute='expenses')) | map('max') | max if monthly_history else 1 %}
-    {% set bar_max = max_val if max_val > 0 else 1 %}
+    {% set bar_max = bar_max if bar_max > 0 else 1 %}
     <div style="display:flex; align-items:flex-end; gap:12px; height:160px; padding:0 8px;">
         {% for m in monthly_history %}
         <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end;">

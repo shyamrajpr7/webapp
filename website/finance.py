@@ -124,6 +124,8 @@ def dashboard():
     budget_usage_pct = (expenses / total_budget * 100) if total_budget > 0 else 0
 
     spending_data = []
+
+    spending_data = []
     for cat in EXPENSE_CATEGORIES:
         spent = expense_by_cat.get(cat, 0)
         budget = budget_map.get(cat, 0)
@@ -165,6 +167,9 @@ def dashboard():
             'expenses': sum(t.amount for t in mt if t.type == 'expense'),
         })
 
+    all_vals = [h['income'] for h in monthly_history] + [h['expenses'] for h in monthly_history]
+    bar_max = max(all_vals) if all_vals else 1
+
     return render_template('dashboard.html', user=current_user, transactions=recent,
         income=income, expenses=expenses, balance=balance,
         savings_rate=savings_rate, spending_data=spending_data, chart_data=chart_data,
@@ -172,7 +177,7 @@ def dashboard():
         all_transactions=monthly, alerts=alerts, comparison=comparison,
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
         income_count=income_count, expense_count=expense_count,
-        monthly_history=monthly_history, category_colors=CATEGORY_COLORS,
+        monthly_history=monthly_history, bar_max=bar_max, category_colors=CATEGORY_COLORS,
         today_expenses=today_expenses, today_income=today_income, today_count=today_count,
         avg_daily_expense=avg_daily_expense, day_of_month=day_of_month,
         largest_expense=largest_expense,
