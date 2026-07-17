@@ -1,382 +1,389 @@
 {% extends "base.html" %}
 {% block title %}Dashboard - FinTrack{% endblock %}
+{% block header_title %}Dashboard{% endblock %}
+{% block header_actions %}
+<a href="{{ url_for('finance.export_csv', month=month, year=year) }}" class="btn btn-ghost btn-sm">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Export
+</a>
+<a href="{{ url_for('finance.export_all_csv') }}" class="btn btn-ghost btn-sm">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Export All
+</a>
+{% endblock %}
 {% block extra_css %}
-.pie-container { position: relative; width: 200px; height: 200px; margin: 0 auto 16px; }
-.pie-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-.pie-center .pie-val { font-size: 22px; font-weight: 700; color: var(--text); }
-.pie-center .pie-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
-.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.chart-bar { transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.donut-segment { transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
 {% endblock %}
 {% block content %}
+
+{# Month Navigation #}
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
-    <div>
-        <h1 style="font-size:24px; font-weight:700; color:var(--text);">Dashboard</h1>
-        <p style="font-size:14px; color:var(--text-muted); margin-top:2px;">Track your income and expenses</p>
-    </div>
     <div style="display:flex; align-items:center; gap:12px;">
-        <a href="{{ url_for('finance.export_csv', month=month, year=year) }}" class="btn btn-ghost btn-sm">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export Month
-        </a>
-        <a href="{{ url_for('finance.export_all_csv') }}" class="btn btn-ghost btn-sm">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export All
-        </a>
-        <div class="month-nav" style="margin-bottom:0;">
         {% set prev_month = month - 1 if month > 1 else 12 %}
         {% set prev_year = year if month > 1 else year - 1 %}
         {% set next_month = month + 1 if month < 12 else 1 %}
         {% set next_year = year if month < 12 else year + 1 %}
-        <a href="?month={{ prev_month }}&year={{ prev_year }}">&#8592;</a>
-        <span>{{ months[month - 1] }} {{ year }}</span>
-        <a href="?month={{ next_month }}&year={{ next_year }}">&#8594;</a>
+        <a href="?month={{ prev_month }}&year={{ prev_year }}" style="width:36px; height:36px; border-radius:10px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-secondary); transition:all 0.15s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-secondary)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
+        <div style="text-align:center; min-width:160px;">
+            <div style="font-size:20px; font-weight:700; color:var(--text); letter-spacing:-0.3px;">{{ months[month - 1] }} {{ year }}</div>
+        </div>
+        <a href="?month={{ next_month }}&year={{ next_year }}" style="width:36px; height:36px; border-radius:10px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-secondary); transition:all 0.15s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-secondary)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
     </div>
 </div>
 
-<div style="margin-bottom:20px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:13px; color:var(--text-secondary); line-height:1.5;">
-    {{ monthly_summary }}
-</div>
-
+{# Budget Alerts #}
 {% if alerts %}
 <div style="margin-bottom:24px;">
     {% for a in alerts %}
-    <div class="flash {{ 'error' if a.level == 'exceeded' else 'success' }}" style="background:{{ 'var(--red-bg)' if a.level == 'exceeded' else 'var(--amber-bg)' }}; color:{{ 'var(--red)' if a.level == 'exceeded' else '#b45309' }}; border:1px solid {{ '#fecaca' if a.level == 'exceeded' else '#fde68a' }};">
+    <div style="padding:14px 18px; border-radius:12px; margin-bottom:8px; display:flex; align-items:center; gap:12px; animation:slideDown 0.3s ease;
+        {% if a.level == 'exceeded' %}background:var(--red-bg); border:1px solid var(--red-light); color:var(--red);
+        {% else %}background:var(--amber-bg); border:1px solid var(--amber-light); color:#92400e;{% endif %}">
         {% if a.level == 'exceeded' %}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-            <strong>{{ a.category }}</strong>&nbsp;budget exceeded! Spent ${{ "%.0f"|format(a.spent) }} of ${{ "%.0f"|format(a.budget) }} ({{ "%.0f"|format(a.percentage) }}%)
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         {% else %}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <strong>{{ a.category }}</strong>&nbsp;approaching limit — ${{ "%.0f"|format(a.spent) }} of ${{ "%.0f"|format(a.budget) }} ({{ "%.0f"|format(a.percentage) }}%)
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         {% endif %}
+        <span style="font-size:14px;"><strong>{{ a.category }}</strong> &mdash;
+        {% if a.level == 'exceeded' %}Budget exceeded by ${{ "%.0f"|format(a.spent - a.budget) }}{% else %}Approaching limit ({{ "%.0f"|format(a.percentage) }}%){% endif %}</span>
     </div>
     {% endfor %}
 </div>
 {% endif %}
 
-<div class="grid grid-3" style="margin-bottom:24px;">
+{# Monthly Summary #}
+<div style="padding:16px 20px; background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:24px; font-size:14px; color:var(--text-secondary); line-height:1.6;">
+    {{ monthly_summary }}
+</div>
+
+{# Stat Cards #}
+<div class="grid grid-4" style="margin-bottom:24px;">
     <div class="card stat-card income">
         <div class="stat-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
         </div>
-        <div class="label">Income</div>
-        <div class="value">${{ "%.2f"|format(income) }}</div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">{{ income_count }} transaction{{ 's' if income_count != 1 }}</div>
+        <div class="stat-label">Income</div>
+        <div class="stat-value">${{ "%.2f"|format(income) }}</div>
+        <div class="stat-meta">{{ income_count }} transaction{{ 's' if income_count != 1 }}</div>
     </div>
     <div class="card stat-card expense">
         <div class="stat-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
         </div>
-        <div class="label">Expenses</div>
-        <div class="value">${{ "%.2f"|format(expenses) }}</div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">{{ expense_count }} transaction{{ 's' if expense_count != 1 }}</div>
+        <div class="stat-label">Expenses</div>
+        <div class="stat-value">${{ "%.2f"|format(expenses) }}</div>
+        <div class="stat-meta">{{ expense_count }} transaction{{ 's' if expense_count != 1 }}</div>
     </div>
     <div class="card stat-card balance">
         <div class="stat-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
         </div>
-        <div class="label">Balance</div>
-        <div class="value">${{ "%.2f"|format(balance) }}</div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+        <div class="stat-label">Balance</div>
+        <div class="stat-value">${{ "%.2f"|format(balance) }}</div>
+        <div class="stat-meta">
             {% if income > 0 %}
-            Savings rate: <strong style="color:{{ 'var(--green)' if savings_rate >= 20 else 'var(--amber)' if savings_rate >= 0 else 'var(--red)' }};">{{ "%.1f"|format(savings_rate) }}%</strong>
+            <span style="color:{{ 'var(--green)' if savings_rate >= 20 else 'var(--amber)' if savings_rate >= 0 else 'var(--red)' }}; font-weight:600;">{{ "%.1f"|format(savings_rate) }}%</span> savings rate
             {% else %}
-            {{ income_count + expense_count }} total
+            {{ income_count + expense_count }} total transactions
             {% endif %}
         </div>
     </div>
-</div>
-
-<div class="card" style="margin-bottom:24px; background: linear-gradient(135deg, #eef2ff, #f0fdf4); border: 1px solid #c7d2fe;">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary); margin-bottom:4px;">Today's Activity</div>
-            <div style="font-size:14px; color:var(--text-secondary);">{{ today_count }} transaction{{ 's' if today_count != 1 }} so far</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Day {{ day_of_month }} of {{ months[month - 1] }}{% if recurring_count > 0 %} &middot; <span style="color:var(--primary);">{{ recurring_count }} recurring</span>{% endif %}</div>
+    <div class="card stat-card savings">
+        <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
-        <div style="display:flex; gap:20px;">
-            <div style="text-align:right;">
-                <div style="font-size:11px; color:var(--text-muted);">Spent</div>
-                <div style="font-size:18px; font-weight:700; color:var(--red);">${{ "%.2f"|format(today_expenses) }}</div>
-            </div>
-            <div style="text-align:right;">
-                <div style="font-size:11px; color:var(--text-muted);">Earned</div>
-                <div style="font-size:18px; font-weight:700; color:var(--green);">${{ "%.2f"|format(today_income) }}</div>
-            </div>
-            <div style="text-align:right;">
-                <div style="font-size:11px; color:var(--text-muted);">Avg Daily Spend</div>
-                <div style="font-size:18px; font-weight:700; color:var(--amber);">${{ "%.2f"|format(avg_daily_expense) }}</div>
-            </div>
-        </div>
+        <div class="stat-label">Days Left</div>
+        <div class="stat-value">{{ days_left }}</div>
+        <div class="stat-meta">{% if total_budget > 0 %}${{ "%.2f"|format(daily_allowance) }}/day allowance{% else %}in {{ months[month - 1] }}{% endif %}</div>
     </div>
 </div>
 
-{% if total_budget > 0 %}
-<div class="card" style="margin-bottom:24px; background: linear-gradient(135deg, #f0f9ff, #eff6ff); border: 1px solid #bfdbfe;">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--blue); margin-bottom:4px;">Days Left in {{ months[month - 1] }}</div>
-            <div style="font-size:14px; color:var(--text-secondary);">{{ days_left }} day{{ 's' if days_left != 1 }} remaining &middot; {{ day_of_month }}/{{ days_in_month }} days elapsed</div>
+{# Today's Activity + Spending Pace #}
+<div class="grid grid-2" style="margin-bottom:24px;">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h3>Today's Activity</h3>
+                <div class="card-subtitle">Day {{ day_of_month }} of {{ months[month - 1] }}</div>
+            </div>
         </div>
-        <div style="text-align:right;">
-            <div style="font-size:11px; color:var(--text-muted);">Daily Allowance</div>
-            <div style="font-size:22px; font-weight:700; color:{{ 'var(--green)' if daily_allowance >= 0 else 'var(--red)' }};">${{ "%.2f"|format(daily_allowance) }}</div>
-            <div style="font-size:11px; color:var(--text-muted);">${{ "%.0f"|format(remaining_budget) }} left to spend</div>
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+            <div style="text-align:center; padding:16px; background:var(--red-bg); border-radius:12px;">
+                <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--red); margin-bottom:6px;">Spent</div>
+                <div style="font-size:22px; font-weight:700; color:var(--red);">${{ "%.2f"|format(today_expenses) }}</div>
+            </div>
+            <div style="text-align:center; padding:16px; background:var(--green-bg); border-radius:12px;">
+                <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--green); margin-bottom:6px;">Earned</div>
+                <div style="font-size:22px; font-weight:700; color:var(--green);">${{ "%.2f"|format(today_income) }}</div>
+            </div>
+            <div style="text-align:center; padding:16px; background:var(--amber-bg); border-radius:12px;">
+                <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--amber); margin-bottom:6px;">Avg/Day</div>
+                <div style="font-size:22px; font-weight:700; color:var(--amber);">${{ "%.2f"|format(avg_daily_expense) }}</div>
+            </div>
         </div>
-    </div>
-    {% if total_budget > 0 and day_of_month > 1 %}
-    <div style="margin-top:12px; padding-top:12px; border-top:1px solid #bfdbfe;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:12px; color:var(--text-muted);">Spending pace</span>
-            <span style="font-size:12px; font-weight:600; color:{{ 'var(--red)' if spending_pace_pct > 110 else '#b45309' if spending_pace_pct > 90 else 'var(--green)' }};">{{ "%.0f"|format(spending_pace_pct) }}% of expected</span>
+        {% if recurring_count > 0 %}
+        <div style="margin-top:14px; padding:10px 14px; background:var(--primary-subtle); border-radius:8px; font-size:13px; color:var(--primary); display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            {{ recurring_count }} recurring transaction{{ 's' if recurring_count != 1 }} this month
         </div>
-        <div style="background:#e0e7ff; border-radius:6px; height:6px; overflow:hidden;">
-            <div style="height:100%; width:{{ [spending_pace_pct, 150]|min / 1.5 }}%; background:{{ 'var(--red)' if spending_pace_pct > 110 else '#b45309' if spending_pace_pct > 90 else 'var(--green)' }}; border-radius:6px;"></div>
-        </div>
-        {% if spending_pace_pct > 110 %}
-        <div style="font-size:11px; color:var(--red); margin-top:6px; font-weight:500;">Spending faster than planned &mdash; you may run out of budget early</div>
-        {% elif spending_pace_pct < 70 and day_of_month > 10 %}
-        <div style="font-size:11px; color:var(--green); margin-top:6px; font-weight:500;">Spending well under pace &mdash; on track to save</div>
         {% endif %}
     </div>
-    {% endif %}
-</div>
-{% endif %}
 
-{% if largest_expense %}
-<div class="card" style="margin-bottom:24px; background: linear-gradient(135deg, #fef2f2, #fff7ed); border: 1px solid #fecaca;">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--red); margin-bottom:4px;">Largest Expense This Month</div>
-            <div style="font-size:14px; color:var(--text-secondary);">{{ largest_expense.category }} &mdash; {{ largest_expense.description or 'No description' }}</div>
+    <div class="card">
+        <div class="card-header">
+            <h3>Spending Pace</h3>
         </div>
-        <div style="text-align:right;">
-            <div style="font-size:22px; font-weight:700; color:var(--red);">-${{ "%.2f"|format(largest_expense.amount) }}</div>
-            <div style="font-size:11px; color:var(--text-muted);">{{ largest_expense.date.strftime('%b %d') }}</div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-{% if most_active_category %}
-<div class="card" style="margin-bottom:24px; background: linear-gradient(135deg, #faf5ff, #f5f3ff); border: 1px solid #ddd6fe;">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:4px;">Most Active Category</div>
-            <div style="font-size:14px; color:var(--text-secondary);">{{ most_active_category }} &mdash; {{ most_active_count }} transaction{{ 's' if most_active_count != 1 }}</div>
-        </div>
-        <div style="text-align:right;">
-            <div style="width:40px; height:40px; border-radius:50%; background:{{ category_colors.get(most_active_category, '#6b7280') }}22; display:flex; align-items:center; justify-content:center;">
-                <div style="width:16px; height:16px; border-radius:50%; background:{{ category_colors.get(most_active_category, '#6b7280') }};"></div>
+        {% if total_budget > 0 %}
+        <div style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:13px; color:var(--text-muted);">Budget Usage</span>
+                <span style="font-size:14px; font-weight:700; color:{{ 'var(--red)' if budget_usage_pct > 100 else 'var(--amber)' if budget_usage_pct > 80 else 'var(--green)' }};">{{ "%.0f"|format(budget_usage_pct) }}%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width:{{ [budget_usage_pct, 100]|min }}%; background:{{ 'var(--red)' if budget_usage_pct > 100 else 'var(--amber)' if budget_usage_pct > 80 else 'var(--green)' }};"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:8px;">
+                <span style="font-size:12px; color:var(--text-muted);">${{ "%.0f"|format(expenses) }} spent</span>
+                <span style="font-size:12px; color:var(--text-muted);">${{ "%.0f"|format(total_budget) }} budgeted</span>
             </div>
         </div>
+        {% if day_of_month > 1 %}
+        <div style="margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                <span style="font-size:12px; color:var(--text-muted);">Pace vs Expected</span>
+                <span style="font-size:12px; font-weight:600; color:{{ 'var(--red)' if spending_pace_pct > 110 else '#b45309' if spending_pace_pct > 90 else 'var(--green)' }};">{{ "%.0f"|format(spending_pace_pct) }}%</span>
+            </div>
+            <div class="progress-bar" style="height:6px;">
+                <div class="progress-fill" style="width:{{ [spending_pace_pct / 1.5, 100]|min }}%; background:{{ 'var(--red)' if spending_pace_pct > 110 else '#b45309' if spending_pace_pct > 90 else 'var(--green)' }};"></div>
+            </div>
+        </div>
+        {% if spending_pace_pct > 110 %}
+        <div style="padding:10px 14px; background:var(--red-bg); border-radius:8px; font-size:13px; color:var(--red); display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+            Spending faster than planned
+        </div>
+        {% elif spending_pace_pct < 70 and day_of_month > 10 %}
+        <div style="padding:10px 14px; background:var(--green-bg); border-radius:8px; font-size:13px; color:var(--green); display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            On track to save this month
+        </div>
+        {% endif %}
+        {% endif %}
+        {% else %}
+        <div style="text-align:center; padding:20px;">
+            <div style="font-size:13px; color:var(--text-muted);">Set a budget to track spending pace</div>
+            <a href="{{ url_for('finance.budgets') }}" class="btn btn-primary btn-sm" style="margin-top:12px;">Set Budget</a>
+        </div>
+        {% endif %}
     </div>
 </div>
-{% endif %}
 
-{% if total_budget > 0 %}
-<div class="card" style="margin-bottom:24px;">
-    <div class="card-header">
-        <h3>Monthly Spending Goal</h3>
-        <span style="font-size:13px; font-weight:600; color:{{ 'var(--red)' if budget_usage_pct > 100 else 'var(--amber)' if budget_usage_pct > 80 else 'var(--green)' }};">{{ "%.0f"|format(budget_usage_pct) }}% used</span>
-    </div>
-    <div style="margin-bottom:8px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-            <span style="font-size:13px; color:var(--text-secondary);">${{ "%.0f"|format(expenses) }} spent</span>
-            <span style="font-size:13px; color:var(--text-secondary);">${{ "%.0f"|format(total_budget) }} budgeted</span>
-        </div>
-        <div style="background:var(--bg); border-radius:8px; height:12px; overflow:hidden;">
-            <div style="height:100%; width:{{ [budget_usage_pct, 100]|min }}%; background:{{ 'var(--red)' if budget_usage_pct > 100 else 'var(--amber)' if budget_usage_pct > 80 else 'var(--green)' }}; border-radius:8px; transition:width 0.6s ease;"></div>
+{# Largest Expense + Most Active Category #}
+<div class="grid grid-2" style="margin-bottom:24px;">
+    {% if largest_expense %}
+    <div class="card" style="background:linear-gradient(135deg, #fef2f2, #fff7ed); border-color:#fecaca;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--red); margin-bottom:6px;">Largest Expense</div>
+                <div style="font-size:14px; font-weight:500; color:var(--text);">{{ largest_expense.category }}</div>
+                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">{{ largest_expense.description or 'No description' }} &middot; {{ largest_expense.date.strftime('%b %d') }}</div>
+            </div>
+            <div style="font-size:28px; font-weight:700; color:var(--red);">-${{ "%.0f"|format(largest_expense.amount) }}</div>
         </div>
     </div>
-    {% if budget_usage_pct > 100 %}
-    <div style="font-size:12px; color:var(--red); font-weight:500;">Over budget by ${{ "%.0f"|format(expenses - total_budget) }}</div>
-    {% elif budget_usage_pct > 80 %}
-    <div style="font-size:12px; color:#b45309; font-weight:500;">${{ "%.0f"|format(total_budget - expenses) }} remaining</div>
     {% else %}
-    <div style="font-size:12px; color:var(--green); font-weight:500;">${{ "%.0f"|format(total_budget - expenses) }} left to spend</div>
+    <div class="card" style="display:flex; align-items:center; justify-content:center; min-height:100px;">
+        <div style="text-align:center; color:var(--text-muted); font-size:13px;">No expenses yet this month</div>
+    </div>
+    {% endif %}
+
+    {% if most_active_category %}
+    <div class="card" style="background:linear-gradient(135deg, #faf5ff, #f5f3ff); border-color:#ddd6fe;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:6px;">Most Active Category</div>
+                <div style="font-size:14px; font-weight:500; color:var(--text);">{{ most_active_category }}</div>
+                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">{{ most_active_count }} transaction{{ 's' if most_active_count != 1 }} this month</div>
+            </div>
+            <div style="width:48px; height:48px; border-radius:14px; background:{{ category_colors.get(most_active_category, '#6b7280') }}22; display:flex; align-items:center; justify-content:center;">
+                <div style="width:20px; height:20px; border-radius:50%; background:{{ category_colors.get(most_active_category, '#6b7280') }};"></div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="display:flex; align-items:center; justify-content:center; min-height:100px;">
+        <div style="text-align:center; color:var(--text-muted); font-size:13px;">No transactions yet</div>
+    </div>
     {% endif %}
 </div>
-{% endif %}
 
-{% if income > 0 or expenses > 0 %}
-<div class="card" style="margin-bottom:24px;">
-    <div class="card-header">
-        <h3>Monthly Overview</h3>
-    </div>
-    {% set total = income + expenses if income + expenses > 0 else 1 %}
-    {% set inc_pct = (income / total * 100) if total > 0 else 0 %}
-    {% set exp_pct = (expenses / total * 100) if total > 0 else 0 %}
-    <div style="margin-bottom:12px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-            <span style="font-size:13px; font-weight:500; color:var(--green);">Income ${{ "%.0f"|format(income) }}</span>
-            <span style="font-size:13px; font-weight:500; color:var(--red);">Expenses ${{ "%.0f"|format(expenses) }}</span>
-        </div>
-        <div style="display:flex; height:24px; border-radius:12px; overflow:hidden; background:var(--bg);">
-            <div style="width:{{ inc_pct }}%; background:linear-gradient(90deg, #10b981, #34d399); transition:width 0.6s ease; display:flex; align-items:center; justify-content:center;">
-                {% if inc_pct > 10 %}
-                <span style="font-size:11px; font-weight:600; color:#fff;">{{ "%.0f"|format(inc_pct) }}%</span>
-                {% endif %}
-            </div>
-            <div style="width:{{ exp_pct }}%; background:linear-gradient(90deg, #ef4444, #f87171); transition:width 0.6s ease; display:flex; align-items:center; justify-content:center;">
-                {% if exp_pct > 10 %}
-                <span style="font-size:11px; font-weight:600; color:#fff;">{{ "%.0f"|format(exp_pct) }}%</span>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div style="display:flex; gap:16px; justify-content:center;">
-        <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
-            <div style="width:10px; height:10px; border-radius:2px; background:var(--green);"></div> Income ({{ "%.0f"|format(inc_pct) }}%)
-        </div>
-        <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
-            <div style="width:10px; height:10px; border-radius:2px; background:var(--red);"></div> Expenses ({{ "%.0f"|format(exp_pct) }}%)
-        </div>
-    </div>
-</div>
-{% endif %}
-
+{# Top Categories + Month Comparison #}
 {% if top_categories %}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-header">
         <h3>Top Spending Categories</h3>
     </div>
-    <div style="display:flex; gap:16px;">
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
         {% for cat, amount in top_categories %}
-        <div style="flex:1; text-align:center; padding:12px; background:var(--bg); border-radius:var(--radius-sm);">
-            <div style="width:12px; height:12px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }}; margin:0 auto 8px;"></div>
-            <div style="font-size:13px; font-weight:500; color:var(--text);">{{ cat }}</div>
-            <div style="font-size:18px; font-weight:700; color:var(--red); margin-top:4px;">${{ "%.0f"|format(amount) }}</div>
-            <div style="font-size:11px; color:var(--text-muted);">{{ "%.0f"|format(amount / expenses * 100 if expenses > 0 else 0) }}% of total</div>
+        <div style="text-align:center; padding:20px; background:var(--bg); border-radius:14px; border:1px solid var(--border-light);">
+            <div style="width:40px; height:40px; border-radius:12px; background:{{ category_colors.get(cat, '#6b7280') }}15; display:flex; align-items:center; justify-content:center; margin:0 auto 12px;">
+                <div style="width:14px; height:14px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
+            </div>
+            <div style="font-size:13px; font-weight:500; color:var(--text); margin-bottom:4px;">{{ cat }}</div>
+            <div style="font-size:22px; font-weight:700; color:var(--text);">${{ "%.0f"|format(amount) }}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">{{ "%.0f"|format(amount / expenses * 100 if expenses > 0 else 0) }}% of total</div>
         </div>
         {% endfor %}
     </div>
 </div>
 {% endif %}
 
+{# Month Comparison #}
 {% if comparison.prev_income > 0 or comparison.prev_expenses > 0 %}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-header">
         <h3>vs. {{ months[prev_month - 1] }}</h3>
     </div>
-    <div style="display:flex; gap:24px; flex-wrap:wrap;">
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;">
         {% set inc = comparison.income_change %}
         {% set exp = comparison.expense_change %}
         {% set bal = comparison.balance_change %}
-        <div style="flex:1; min-width:120px; text-align:center;">
-            <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Income</div>
-            {% if inc is not none %}
-            <div style="font-size:18px; font-weight:700; color:{{ 'var(--green)' if inc >= 0 else 'var(--red)' }};">
-                {{ '+' if inc >= 0 else '' }}{{ "%.1f"|format(inc) }}%
+        {% for label, change, prev in [('Income', inc, comparison.prev_income), ('Expenses', exp, comparison.prev_expenses), ('Balance', bal, comparison.prev_balance)] %}
+        <div style="text-align:center; padding:16px; background:var(--bg); border-radius:12px;">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">{{ label }}</div>
+            {% if change is not none %}
+            <div style="font-size:22px; font-weight:700; color:{{ 'var(--green)' if (change >= 0 and label != 'Expenses') or (change <= 0 and label == 'Expenses') else 'var(--red)' }};">
+                {{ '+' if change >= 0 else '' }}{{ "%.1f"|format(change) }}%
             </div>
             {% else %}
-            <div style="font-size:18px; font-weight:700; color:var(--text-muted);">--</div>
+            <div style="font-size:22px; font-weight:700; color:var(--text-muted);">--</div>
             {% endif %}
-            <div style="font-size:11px; color:var(--text-muted);">was ${{ "%.0f"|format(comparison.prev_income) }}</div>
-        </div>
-        <div style="width:1px; background:var(--border);"></div>
-        <div style="flex:1; min-width:120px; text-align:center;">
-            <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Expenses</div>
-            {% if exp is not none %}
-            <div style="font-size:18px; font-weight:700; color:{{ 'var(--green)' if exp <= 0 else 'var(--red)' }};">
-                {{ '+' if exp >= 0 else '' }}{{ "%.1f"|format(exp) }}%
-            </div>
-            {% else %}
-            <div style="font-size:18px; font-weight:700; color:var(--text-muted);">--</div>
-            {% endif %}
-            <div style="font-size:11px; color:var(--text-muted);">was ${{ "%.0f"|format(comparison.prev_expenses) }}</div>
-        </div>
-        <div style="width:1px; background:var(--border);"></div>
-        <div style="flex:1; min-width:120px; text-align:center;">
-            <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Balance</div>
-            {% if bal is not none %}
-            <div style="font-size:18px; font-weight:700; color:{{ 'var(--green)' if bal >= 0 else 'var(--red)' }};">
-                {{ '+' if bal >= 0 else '' }}{{ "%.1f"|format(bal) }}%
-            </div>
-            {% else %}
-            <div style="font-size:18px; font-weight:700; color:var(--text-muted);">--</div>
-            {% endif %}
-            <div style="font-size:11px; color:var(--text-muted);">was ${{ "%.0f"|format(comparison.prev_balance) }}</div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-{% if monthly_history %}
-<div class="card" style="margin-bottom:24px;">
-    <div class="card-header">
-        <h3>Last 6 Months</h3>
-    </div>
-    {% set bar_max = bar_max if bar_max > 0 else 1 %}
-    <div style="display:flex; align-items:flex-end; gap:12px; height:160px; padding:0 8px;">
-        {% for m in monthly_history %}
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end;">
-            <div style="display:flex; gap:3px; align-items:flex-end; width:100%; height:100%;">
-                <div style="flex:1; background:var(--green); border-radius:4px 4px 0 0; height:{{ (m.income / bar_max * 100) if bar_max > 0 else 0 }}%; min-height:{{ '2px' if m.income > 0 else '0' }}; transition:height 0.6s ease;" title="Income: ${{ '%.0f'|format(m.income) }}"></div>
-                <div style="flex:1; background:var(--red); border-radius:4px 4px 0 0; height:{{ (m.expenses / bar_max * 100) if bar_max > 0 else 0 }}%; min-height:{{ '2px' if m.expenses > 0 else '0' }}; transition:height 0.6s ease;" title="Expenses: ${{ '%.0f'|format(m.expenses) }}"></div>
-            </div>
-            <div style="font-size:11px; color:var(--text-muted); font-weight:500; white-space:nowrap;">{{ m.month }}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">was ${{ "%.0f"|format(prev) }}</div>
         </div>
         {% endfor %}
     </div>
-    <div style="display:flex; gap:16px; justify-content:center; margin-top:16px;">
-        <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
-            <div style="width:10px; height:10px; border-radius:2px; background:var(--green);"></div> Income
-        </div>
-        <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
-            <div style="width:10px; height:10px; border-radius:2px; background:var(--red);"></div> Expenses
-        </div>
-    </div>
 </div>
 {% endif %}
 
+{# Charts Row #}
 <div class="grid grid-2" style="margin-bottom:24px;">
+    {# Spending Breakdown #}
     <div class="card">
-        <div class="card-header">
-            <h3>Spending Breakdown</h3>
-        </div>
+        <div class="card-header"><h3>Spending Breakdown</h3></div>
         {% if chart_data %}
         {% set total = chart_data | map(attribute='amount') | sum %}
-        <div class="pie-container">
-            <svg viewBox="0 0 100 100" width="200" height="200">
-                {% set circumference = 251.3 %}
-                {% set ns = namespace(angle=0) %}
+        <div style="display:flex; align-items:center; gap:32px;">
+            <div style="position:relative; width:160px; height:160px; flex-shrink:0;">
+                <svg viewBox="0 0 100 100" width="160" height="160">
+                    {% set circumference = 251.3 %}
+                    {% set ns = namespace(angle=0) %}
+                    {% for item in chart_data %}
+                        {% set pct = (item.amount / total * 360) if total > 0 else 0 %}
+                        {% set dash = (item.amount / total * circumference) | round(2) %}
+                        {% set offset = (-ns.angle / 360 * circumference) | round(2) %}
+                        <circle class="donut-segment" cx="50" cy="50" r="38" fill="none" stroke="{{ item.color }}" stroke-width="16"
+                            stroke-dasharray="{{ dash }} {{ circumference }}"
+                            stroke-dashoffset="{{ offset }}"
+                            opacity="0.85" stroke-linecap="round"/>
+                        {% set ns.angle = ns.angle + pct %}
+                    {% endfor %}
+                </svg>
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center;">
+                    <div style="font-size:20px; font-weight:700; color:var(--text);">${{ "%.0f"|format(total) }}</div>
+                    <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Total</div>
+                </div>
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
                 {% for item in chart_data %}
-                    {% set pct = (item.amount / total * 360) if total > 0 else 0 %}
-                    {% set dash = (item.amount / total * circumference) | round(2) %}
-                    {% set offset = (-ns.angle / 360 * circumference) | round(2) %}
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="{{ item.color }}" stroke-width="18"
-                        stroke-dasharray="{{ dash }} {{ circumference }}"
-                        stroke-dashoffset="{{ offset }}"
-                        opacity="0.85"/>
-                    {% set ns.angle = ns.angle + pct %}
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:10px; height:10px; border-radius:3px; background:{{ item.color }}; flex-shrink:0;"></div>
+                    <span style="flex:1; font-size:13px; color:var(--text-secondary);">{{ item.category }}</span>
+                    <span style="font-size:13px; font-weight:600; color:var(--text);">${{ "%.0f"|format(item.amount) }}</span>
+                </div>
                 {% endfor %}
-            </svg>
-            <div class="pie-center">
-                <div class="pie-val">${{ "%.0f"|format(total) }}</div>
-                <div class="pie-lbl">Total Spent</div>
             </div>
-        </div>
-        <div class="legend">
-            {% for item in chart_data %}
-            <div class="legend-item">
-                <div class="legend-dot" style="background:{{ item.color }};"></div>
-                {{ item.category }} (${{ "%.0f"|format(item.amount) }})
-            </div>
-            {% endfor %}
         </div>
         {% else %}
-        <div class="empty-state">
+        <div class="empty-state" style="padding:32px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-            <p><strong>No expenses this month</strong><br>Start tracking your spending to see a breakdown here.</p>
+            <p><strong>No expenses this month</strong><br>Add expenses to see a breakdown.</p>
         </div>
         {% endif %}
     </div>
 
+    {# Monthly Overview #}
+    <div class="card">
+        <div class="card-header"><h3>Monthly Overview</h3></div>
+        {% if income > 0 or expenses > 0 %}
+        {% set total = income + expenses if income + expenses > 0 else 1 %}
+        {% set inc_pct = (income / total * 100) if total > 0 else 0 %}
+        {% set exp_pct = (expenses / total * 100) if total > 0 else 0 %}
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+                <div style="width:8px; height:8px; border-radius:2px; background:var(--green);"></div>
+                <span style="font-size:13px; font-weight:500; color:var(--text-secondary);">Income</span>
+            </div>
+            <span style="font-size:14px; font-weight:700; color:var(--green);">${{ "%.0f"|format(income) }}</span>
+        </div>
+        <div style="display:flex; height:20px; border-radius:10px; overflow:hidden; background:var(--bg); margin-bottom:10px;">
+            <div style="width:{{ inc_pct }}%; background:linear-gradient(90deg, #10b981, #34d399); transition:width 0.6s ease;"></div>
+            <div style="width:{{ exp_pct }}%; background:linear-gradient(90deg, #ef4444, #f87171); transition:width 0.6s ease;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:6px;">
+                <div style="width:8px; height:8px; border-radius:2px; background:var(--red);"></div>
+                <span style="font-size:13px; font-weight:500; color:var(--text-secondary);">Expenses</span>
+            </div>
+            <span style="font-size:14px; font-weight:700; color:var(--red);">${{ "%.0f"|format(expenses) }}</span>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:32px;">
+            <p><strong>No data yet</strong><br>Add income or expenses to see your overview.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# Last 6 Months #}
+{% if monthly_history %}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header"><h3>Last 6 Months</h3></div>
+    {% set bar_max = bar_max if bar_max > 0 else 1 %}
+    <div style="display:flex; align-items:flex-end; gap:12px; height:180px; padding:0 8px;">
+        {% for m in monthly_history %}
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; justify-content:flex-end;">
+            <div style="display:flex; gap:4px; align-items:flex-end; width:100%; height:100%;">
+                <div class="chart-bar" style="flex:1; background:linear-gradient(180deg, #10b981, #34d399); border-radius:6px 6px 0 0; height:{{ (m.income / bar_max * 100) if bar_max > 0 else 0 }}%; min-height:{{ '2px' if m.income > 0 else '0' }};" title="Income: ${{ '%.0f'|format(m.income) }}"></div>
+                <div class="chart-bar" style="flex:1; background:linear-gradient(180deg, #ef4444, #f87171); border-radius:6px 6px 0 0; height:{{ (m.expenses / bar_max * 100) if bar_max > 0 else 0 }}%; min-height:{{ '2px' if m.expenses > 0 else '0' }};" title="Expenses: ${{ '%.0f'|format(m.expenses) }}"></div>
+            </div>
+            <div style="font-size:12px; color:var(--text-muted); font-weight:500;">{{ m.month }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <div style="display:flex; gap:20px; justify-content:center; margin-top:16px;">
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
+            <div style="width:10px; height:10px; border-radius:3px; background:var(--green);"></div> Income
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
+            <div style="width:10px; height:10px; border-radius:3px; background:var(--red);"></div> Expenses
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# Budget Progress + Quick Actions #}
+<div class="grid grid-2" style="margin-bottom:24px;">
+    {# Budget Progress #}
     <div class="card">
         <div class="card-header">
             <h3>Budget Progress</h3>
+            {% if total_budget > 0 %}
+            <span style="font-size:12px; font-weight:600; color:{{ 'var(--red)' if budget_usage_pct > 100 else 'var(--amber)' if budget_usage_pct > 80 else 'var(--green)' }};">{{ "%.0f"|format(budget_usage_pct) }}% used</span>
+            {% endif %}
         </div>
         {% set has_budgets = spending_data | selectattr('budget') | list %}
         {% if has_budgets %}
@@ -387,81 +394,79 @@
                         <div style="width:8px; height:8px; border-radius:50%; background:{{ item.color }};"></div>
                         <span style="font-size:13px; font-weight:500; color:var(--text);">{{ item.category }}</span>
                     </div>
-                    <span style="font-size:12px; color:var(--text-muted); font-weight:500;">${{ "%.0f"|format(item.spent) }} / ${{ "%.0f"|format(item.budget) }}</span>
+                    <span style="font-size:12px; color:var(--text-muted);">${{ "%.0f"|format(item.spent) }} / ${{ "%.0f"|format(item.budget) }}</span>
                 </div>
-                <div style="background:var(--bg); border-radius:6px; height:8px; overflow:hidden;">
-                    <div style="height:100%; width:{{ item.percentage }}%; background:{{ item.color }}; border-radius:6px; transition: width 0.6s ease;"></div>
+                <div class="progress-bar" style="height:6px;">
+                    <div class="progress-fill" style="width:{{ item.percentage }}%; background:{{ item.color }};"></div>
                 </div>
-                {% if item.percentage >= 90 %}
-                <div style="font-size:11px; color:var(--red); margin-top:4px; font-weight:500;">Near limit</div>
-                {% endif %}
             </div>
             {% endfor %}
         {% else %}
-        <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/></svg>
-            <p><strong>No budgets set</strong><br>Set budgets to monitor your spending limits.</p>
-            <a href="{{ url_for('finance.budgets') }}" class="btn btn-primary btn-sm" style="margin-top:12px;">Set up budgets</a>
+        <div class="empty-state" style="padding:24px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px; height:40px;"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/></svg>
+            <p><strong>No budgets set</strong><br>Set budgets to monitor spending.</p>
+            <a href="{{ url_for('finance.budgets') }}" class="btn btn-primary btn-sm" style="margin-top:12px;">Set Budgets</a>
         </div>
         {% endif %}
     </div>
-</div>
 
-<div class="grid grid-2" style="margin-bottom:24px;">
+    {# Quick Add #}
     <div class="card">
-        <div class="card-header">
-            <h3>Quick Add Expense</h3>
+        <div class="card-header"><h3>Quick Add</h3></div>
+        <div style="margin-bottom:20px;">
+            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:10px;">Expense</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                {% set presets = [('Food & Dining', 15), ('Transportation', 5), ('Entertainment', 10), ('Shopping', 25), ('Utilities', 50)] %}
+                {% for cat, amt in presets %}
+                <form method="POST" action="{{ url_for('finance.quick_add') }}" style="display:inline;">
+                    <input type="hidden" name="category" value="{{ cat }}"/>
+                    <input type="hidden" name="amount" value="{{ amt }}"/>
+                    <button type="submit" class="btn btn-ghost btn-sm" style="font-size:12px;">
+                        <div style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
+                        {{ cat }} ${{ amt }}
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
         </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            {% set presets = [('Food & Dining', 15), ('Transportation', 5), ('Entertainment', 10), ('Shopping', 25), ('Utilities', 50)] %}
-            {% for cat, amt in presets %}
-            <form method="POST" action="{{ url_for('finance.quick_add') }}" style="display:inline;">
-                <input type="hidden" name="category" value="{{ cat }}"/>
-                <input type="hidden" name="amount" value="{{ amt }}"/>
-                <button type="submit" class="btn btn-ghost btn-sm" style="display:flex; align-items:center; gap:6px;">
-                    <div style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
-                    {{ cat }} - ${{ amt }}
-                </button>
-            </form>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h3>Quick Add Income</h3>
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            {% set income_presets = [('Salary', 1000), ('Freelance', 500), ('Investments', 100), ('Business', 250)] %}
-            {% for cat, amt in income_presets %}
-            <form method="POST" action="{{ url_for('finance.quick_add_income') }}" style="display:inline;">
-                <input type="hidden" name="category" value="{{ cat }}"/>
-                <input type="hidden" name="amount" value="{{ amt }}"/>
-                <button type="submit" class="btn btn-ghost btn-sm" style="display:flex; align-items:center; gap:6px;">
-                    <div style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
-                    {{ cat }} - ${{ amt }}
-                </button>
-            </form>
-            {% endfor %}
+        <div>
+            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:10px;">Income</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                {% set income_presets = [('Salary', 1000), ('Freelance', 500), ('Investments', 100), ('Business', 250)] %}
+                {% for cat, amt in income_presets %}
+                <form method="POST" action="{{ url_for('finance.quick_add_income') }}" style="display:inline;">
+                    <input type="hidden" name="category" value="{{ cat }}"/>
+                    <input type="hidden" name="amount" value="{{ amt }}"/>
+                    <button type="submit" class="btn btn-ghost btn-sm" style="font-size:12px;">
+                        <div style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
+                        {{ cat }} ${{ amt }}
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
 
+{# Recent Transactions #}
 <div class="card">
     <div class="card-header">
-        <h3>Recent Transactions <span style="font-weight:400; font-size:13px; color:var(--text-muted);">({{ all_transactions|length }})</span></h3>
+        <div>
+            <h3>Recent Transactions <span style="font-weight:400; color:var(--text-muted);">({{ all_transactions|length }})</span></h3>
+        </div>
         <div style="display:flex; gap:8px; align-items:center;">
             {% if all_transactions|length > 10 %}
-            <button id="toggleTxns" onclick="toggleTransactions()" class="btn btn-ghost btn-sm" style="font-size:12px;">
+            <button id="toggleTxns" onclick="toggleTransactions()" class="btn btn-ghost btn-sm">
                 Show All ({{ all_transactions|length }})
             </button>
             {% endif %}
             <a href="{{ url_for('finance.add_transaction') }}" class="btn btn-primary btn-sm">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Transaction
-        </a>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Transaction
+            </a>
+        </div>
     </div>
-    <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+    <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
         <input type="text" id="searchInput" placeholder="Search transactions..." onkeyup="filterTransactions()" style="flex:1; min-width:200px;"/>
         <select id="typeFilter" onchange="filterTransactions()" style="width:140px;">
             <option value="all">All ({{ income_count + expense_count }})</option>
@@ -498,13 +503,13 @@
                 <td style="color:var(--text-secondary);">{{ t.date.strftime('%b %d, %Y') }}</td>
                 <td><span class="badge {{ t.type }}">{{ t.type }}</span></td>
                 <td>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:500; background:{{ category_colors.get(t.category, '#6b7280') }}22; color:{{ category_colors.get(t.category, '#6b7280') }};">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:8px; font-size:12px; font-weight:500; background:{{ category_colors.get(t.category, '#6b7280') }}15; color:{{ category_colors.get(t.category, '#6b7280') }};">
                             <span style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(t.category, '#6b7280') }};"></span>
                             {{ t.category }}
                         </span>
                         {% if t.recurring %}
-                        <span style="font-size:10px; padding:2px 6px; border-radius:10px; background:#eef2ff; color:var(--primary); font-weight:600;">R</span>
+                        <span style="font-size:10px; padding:2px 6px; border-radius:6px; background:var(--primary-subtle); color:var(--primary); font-weight:600;">R</span>
                         {% endif %}
                     </div>
                 </td>
@@ -513,13 +518,8 @@
                     {{ '+' if t.type == 'income' else '-' }}${{ "%.2f"|format(t.amount) }}
                 </td>
                 <td style="white-space:nowrap;">
-                    <a href="{{ url_for('finance.edit_transaction', id=t.id) }}"
-                       style="color:var(--primary); text-decoration:none; font-size:13px; padding:4px 6px; border-radius:4px;"
-                       title="Edit">&#9998;</a>
-                    <a href="{{ url_for('finance.delete_transaction', id=t.id) }}"
-                       onclick="event.preventDefault(); confirmDelete(this.href);"
-                       style="color:var(--text-muted); text-decoration:none; font-size:16px; line-height:1; padding:4px;"
-                       title="Delete">&times;</a>
+                    <a href="{{ url_for('finance.edit_transaction', id=t.id) }}" style="color:var(--primary); text-decoration:none; font-size:13px; padding:4px 6px; border-radius:4px;" title="Edit">&#9998;</a>
+                    <a href="{{ url_for('finance.delete_transaction', id=t.id) }}" onclick="event.preventDefault(); confirmDelete(this.href);" style="color:var(--text-muted); text-decoration:none; font-size:16px; line-height:1; padding:4px;" title="Delete">&times;</a>
                 </td>
             </tr>
             {% endfor %}
@@ -533,6 +533,7 @@
     </div>
     {% endif %}
 </div>
+
 <script>
 var showingAll = false;
 function toggleTransactions() {
@@ -540,15 +541,10 @@ function toggleTransactions() {
     var btn = document.getElementById('toggleTxns');
     document.querySelectorAll('tbody tr[data-index]').forEach(function(row) {
         var idx = parseInt(row.dataset.index);
-        if (showingAll) {
-            row.style.display = '';
-        } else if (idx > 10) {
-            row.style.display = 'none';
-        }
+        if (showingAll) { row.style.display = ''; }
+        else if (idx > 10) { row.style.display = 'none'; }
     });
-    if (btn) {
-        btn.textContent = showingAll ? 'Show Less' : 'Show All ({{ all_transactions|length }})';
-    }
+    if (btn) { btn.textContent = showingAll ? 'Show Less' : 'Show All ({{ all_transactions|length }})'; }
 }
 function filterTransactions() {
     const search = document.getElementById('searchInput').value.toLowerCase();
