@@ -14,7 +14,8 @@ def login():
         password = request.form.get('password')
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
-            login_user(user)
+            remember = bool(request.form.get('remember'))
+            login_user(user, remember=remember)
             return redirect(url_for('views.home'))
         else:
             flash('Invalid email or password.', category='error')
