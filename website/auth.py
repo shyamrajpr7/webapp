@@ -106,7 +106,8 @@ def profile():
     first_tx = min(transactions, key=lambda t: t.date) if transactions else None
     account_days = (datetime.utcnow() - first_tx.date).days + 1 if first_tx else 0
     categories_used = len(set(t.category for t in transactions))
+    net_worth = total_income - total_expenses
     return render_template('profile.html', user=current_user, tx_count=tx_count,
         total_income=total_income, total_expenses=total_expenses,
         account_days=account_days, categories_used=categories_used,
-        avg_expense=avg_expense)
+        avg_expense=avg_expense, net_worth=net_worth)

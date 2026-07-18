@@ -16,7 +16,7 @@
         </div>
 
         {# Stats Grid #}
-        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; padding:20px; background:var(--bg); border-radius:14px;">
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:16px; padding:20px; background:var(--bg); border-radius:14px;">
             <div style="text-align:center;">
                 <div style="font-size:24px; font-weight:700; color:var(--primary);">{{ tx_count }}</div>
                 <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;">Transactions</div>
@@ -28,6 +28,10 @@
             <div style="text-align:center;">
                 <div style="font-size:24px; font-weight:700; color:var(--red);">${{ "%.0f"|format(total_expenses) }}</div>
                 <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;">Spent</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:24px; font-weight:700; color:{{ 'var(--green)' if net_worth >= 0 else 'var(--red)' }};">${{ "%.0f"|format(net_worth) }}</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;">Net Worth</div>
             </div>
             <div style="text-align:center;">
                 <div style="font-size:24px; font-weight:700; color:var(--amber);">${{ "%.0f"|format(avg_expense) }}</div>
