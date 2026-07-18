@@ -52,6 +52,24 @@
                 </button>
             </form>
         </div>
+        {% if total_budget > 0 %}
+        <div style="display:flex; gap:16px; margin-bottom:20px; padding:16px 20px; background:var(--bg); border-radius:12px;">
+            <div style="flex:1; text-align:center;">
+                <div style="font-size:20px; font-weight:700; color:var(--primary);">${{ "%.0f"|format(total_budget) }}</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Total Budget</div>
+            </div>
+            <div style="width:1px; background:var(--border);"></div>
+            <div style="flex:1; text-align:center;">
+                <div style="font-size:20px; font-weight:700; color:var(--red);">${{ "%.0f"|format(total_spent) }}</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Spent So Far</div>
+            </div>
+            <div style="width:1px; background:var(--border);"></div>
+            <div style="flex:1; text-align:center;">
+                <div style="font-size:20px; font-weight:700; color:{{ 'var(--green)' if remaining_budget >= 0 else 'var(--red)' }};">${{ "%.0f"|format(remaining_budget) }}</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Remaining</div>
+            </div>
+        </div>
+        {% endif %}
         <form method="POST">
             {% for cat in expense_categories %}
             <div class="budget-row">

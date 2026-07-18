@@ -286,12 +286,20 @@ def budgets():
         user_id=current_user.id, month=month, year=year).all()
     budget_map = {b.category: b.amount for b in existing_budgets}
 
+    total_budget = sum(budget_map.values())
+    expenses = Transaction.query.filter_by(user_id=current_user.id, type='expense').filter(
+        db.extract('month', Transaction.date) == month,
+        db.extract('year', Transaction.date) == year).all()
+    total_spent = sum(e.amount for e in expenses)
+    remaining_budget = total_budget - total_spent if total_budget > 0 else 0
+
     months = ['January','February','March','April','May','June',
               'July','August','September','October','November','December']
 
     return render_template('budgets.html', user=current_user,
         expense_categories=EXPENSE_CATEGORIES, budget_map=budget_map,
-        category_colors=CATEGORY_COLORS, month=month, year=year, months=months)
+        category_colors=CATEGORY_COLORS, month=month, year=year, months=months,
+        total_budget=total_budget, total_spent=total_spent, remaining_budget=remaining_budget)
 
 @finance.route('/copy-budgets', methods=['POST'])
 @login_required
