@@ -409,8 +409,9 @@
         .flash {
             padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 20px;
             font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px;
-            animation: slideDown 0.3s ease;
+            animation: slideDown 0.3s ease; cursor: pointer; transition: opacity 0.3s ease;
         }
+        .flash.dismissing { opacity: 0; transform: translateY(-8px); }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
         .flash.error { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-light); }
         .flash.success { background: var(--green-bg); color: #059669; border: 1px solid var(--green-light); }
@@ -652,6 +653,10 @@
         if (saved) document.documentElement.setAttribute('data-theme', saved);
         updateThemeUI();
     })();
+    document.querySelectorAll('.flash').forEach(function(el) {
+        el.addEventListener('click', function() { this.classList.add('dismissing'); setTimeout(function() { el.remove(); }, 300); });
+        setTimeout(function() { if (el.parentNode) { el.classList.add('dismissing'); setTimeout(function() { el.remove(); }, 300); } }, 5000);
+    });
     function confirmDelete(url) {
         document.getElementById('confirmDeleteBtn').href = url;
         document.getElementById('confirmModal').style.display = 'flex';
