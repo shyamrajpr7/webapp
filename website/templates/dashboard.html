@@ -525,6 +525,10 @@
             {% endfor %}
         </tbody>
     </table>
+    <div id="noResults" style="display:none; text-align:center; padding:32px; color:var(--text-muted);">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px; opacity:0.3;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <p style="font-size:14px;"><strong>No matching transactions</strong><br>Try adjusting your search or filters.</p>
+    </div>
     {% else %}
     <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="12" cy="15" r="1"/></svg>
@@ -550,12 +554,17 @@ function filterTransactions() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const type = document.getElementById('typeFilter').value;
     const cat = document.getElementById('catFilter').value;
+    let visibleCount = 0;
     document.querySelectorAll('tbody tr').forEach(row => {
         const matchType = type === 'all' || row.dataset.type === type;
         const matchCat = cat === 'all' || row.dataset.category === cat;
         const matchSearch = !search || row.dataset.desc.includes(search) || row.dataset.category.toLowerCase().includes(search);
-        row.style.display = (matchType && matchCat && matchSearch) ? '' : 'none';
+        const visible = matchType && matchCat && matchSearch;
+        row.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
     });
+    var noResults = document.getElementById('noResults');
+    if (noResults) noResults.style.display = visibleCount === 0 ? '' : 'none';
 }
 function sortTransactions() {
     const sort = document.getElementById('sortSelect').value;
