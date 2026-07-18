@@ -482,6 +482,11 @@
             <option value="{{ cat }}">{{ cat }}</option>
             {% endfor %}
         </select>
+        <select id="recurFilter" onchange="filterTransactions()" style="width:140px;">
+            <option value="all">All Types</option>
+            <option value="recurring">Recurring</option>
+            <option value="one-time">One-time</option>
+        </select>
         <select id="sortSelect" onchange="sortTransactions()" style="width:180px;">
             <option value="date-desc">Newest First</option>
             <option value="date-asc">Oldest First</option>
@@ -499,7 +504,7 @@
         </thead>
         <tbody>
             {% for t in all_transactions %}
-            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}" data-date="{{ t.date.strftime('%Y%m%d') }}" data-amount="{{ t.amount }}" data-index="{{ loop.index }}" {{ 'style="display:none;"' if loop.index > 10 }}>
+            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}" data-date="{{ t.date.strftime('%Y%m%d') }}" data-amount="{{ t.amount }}" data-recurring="{{ 'yes' if t.recurring else 'no' }}" data-index="{{ loop.index }}" {{ 'style="display:none;"' if loop.index > 10 }}>
                 <td style="color:var(--text-secondary);">{{ t.date.strftime('%b %d, %Y') }}</td>
                 <td><span class="badge {{ t.type }}">{{ t.type }}</span></td>
                 <td>
@@ -554,12 +559,14 @@ function filterTransactions() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const type = document.getElementById('typeFilter').value;
     const cat = document.getElementById('catFilter').value;
+    const recur = document.getElementById('recurFilter').value;
     let visibleCount = 0;
     document.querySelectorAll('tbody tr').forEach(row => {
         const matchType = type === 'all' || row.dataset.type === type;
         const matchCat = cat === 'all' || row.dataset.category === cat;
+        const matchRecur = recur === 'all' || (recur === 'recurring' && row.dataset.recurring === 'yes') || (recur === 'one-time' && row.dataset.recurring === 'no');
         const matchSearch = !search || row.dataset.desc.includes(search) || row.dataset.category.toLowerCase().includes(search);
-        const visible = matchType && matchCat && matchSearch;
+        const visible = matchType && matchCat && matchRecur && matchSearch;
         row.style.display = visible ? '' : 'none';
         if (visible) visibleCount++;
     });
