@@ -591,5 +591,15 @@ function sortTransactions() {
     });
     rows.forEach(row => tbody.appendChild(row));
 }
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        var input = document.getElementById('searchInput');
+        if (input && document.activeElement === input) {
+            input.value = '';
+            filterTransactions();
+            input.blur();
+        }
+    }
+});
 </script>
 {% endblock %}
