@@ -517,6 +517,9 @@
                     <a href="{{ url_for('finance.dashboard') }}" class="sidebar-link {% if request.endpoint == 'finance.dashboard' %}active{% endif %}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
                         Dashboard
+                        {% if tx_count > 0 %}
+                        <span style="margin-left:auto; background:var(--primary-subtle); color:var(--primary); font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px;">{{ tx_count }}</span>
+                        {% endif %}
                         <span class="shortcut">D</span>
                     </a>
                 </div>

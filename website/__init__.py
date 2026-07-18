@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
+from datetime import datetime
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -14,6 +15,18 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+
+    @app.context_processor
+    def inject_globals():
+        tx_count = 0
+        if current_user.is_authenticated:
+            from .models import Transaction
+            now = datetime.now()
+            tx_count = Transaction.query.filter_by(user_id=current_user.id).filter(
+                db.extract('month', Transaction.date) == now.month,
+                db.extract('year', Transaction.date) == now.year
+            ).count()
+        return dict(tx_count=tx_count)
 
     from .views import views
     from .auth import auth
