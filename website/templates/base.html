@@ -541,6 +541,7 @@
                     <a href="{{ url_for('auth.profile') }}" class="sidebar-link {% if request.endpoint == 'auth.profile' %}active{% endif %}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         Profile
+                        <span class="shortcut">P</span>
                     </a>
                     <button onclick="toggleTheme()" class="sidebar-link" style="width:100%; text-align:left; background:none; border:none; cursor:pointer; font-family:inherit; font-size:14px;">
                         <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -630,7 +631,7 @@
             <div style="display:flex; flex-direction:column; gap:8px;">
                 {% set shortcuts = [
                     ('Add transaction', 'N'), ('Dashboard', 'D'), ('Budgets', 'B'),
-                    ('Dark mode', 'T'), ('Logout', 'L'), ('Focus search', '/'), ('Show shortcuts', '?')
+                    ('Profile', 'P'), ('Dark mode', 'T'), ('Logout', 'L'), ('Focus search', '/'), ('Show shortcuts', '?')
                 ] %}
                 {% for label, key in shortcuts %}
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg); border-radius:var(--radius-sm);">
@@ -687,6 +688,7 @@
         else if (e.key === 'n' || e.key === 'N') { window.location.href = '{{ url_for("finance.add_transaction") }}'; }
         else if (e.key === 'd' || e.key === 'D') { window.location.href = '{{ url_for("finance.dashboard") }}'; }
         else if (e.key === 'b' || e.key === 'B') { window.location.href = '{{ url_for("finance.budgets") }}'; }
+        else if (e.key === 'p' || e.key === 'P') { window.location.href = '{{ url_for("auth.profile") }}'; }
         else if (e.key === 't' || e.key === 'T') { toggleTheme(); }
         else if (e.key === 'l' || e.key === 'L') { window.location.href = '{{ url_for("auth.logout") }}'; }
         else if (e.key === '/') { e.preventDefault(); var s = document.getElementById('searchInput'); if (s) s.focus(); }
