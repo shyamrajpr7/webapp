@@ -48,6 +48,17 @@
                 <strong style="color:var(--text-secondary);">{{ categories_used }}</strong> categor{{ 'ies' if categories_used != 1 else 'y' }} used
             </div>
         </div>
+
+        {# Profile Completion #}
+        <div style="margin-top:20px; padding:16px; background:var(--bg); border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:13px; font-weight:500; color:var(--text-secondary);">Profile Completion</span>
+                <span style="font-size:13px; font-weight:700; color:{{ 'var(--green)' if profile_score >= 75 else 'var(--amber)' if profile_score >= 50 else 'var(--red)' }};">{{ profile_score }}%</span>
+            </div>
+            <div class="progress-bar" style="height:6px;">
+                <div class="progress-fill" style="width:{{ profile_score }}%; background:{{ 'var(--green)' if profile_score >= 75 else 'var(--amber)' if profile_score >= 50 else 'var(--red)' }};"></div>
+            </div>
+        </div>
     </div>
 
     {# Edit Profile #}

@@ -111,7 +111,16 @@ def profile():
     if first_tx:
         delta = datetime.utcnow() - first_tx.date
         account_months = (delta.days // 30) + 1
+
+    budget_count = Budget.query.filter_by(user_id=current_user.id).count()
+    score = 0
+    if tx_count > 0: score += 25
+    if expense_count > 0: score += 25
+    if categories_used >= 3: score += 25
+    if budget_count > 0: score += 25
+
     return render_template('profile.html', user=current_user, tx_count=tx_count,
         total_income=total_income, total_expenses=total_expenses,
         account_days=account_days, categories_used=categories_used,
-        avg_expense=avg_expense, net_worth=net_worth, account_months=account_months)
+        avg_expense=avg_expense, net_worth=net_worth, account_months=account_months,
+        profile_score=score)
