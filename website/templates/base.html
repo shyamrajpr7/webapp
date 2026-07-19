@@ -548,7 +548,7 @@
                         <span id="themeLabel">Dark Mode</span>
                         <span class="shortcut">T</span>
                     </button>
-                    <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--red);">
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('logoutModal').style.display='flex';" class="sidebar-link" style="color:var(--red);">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                         Logout
                         <span class="shortcut">L</span>
@@ -615,6 +615,21 @@
             <div class="modal-actions">
                 <button onclick="closeModal()" class="btn btn-ghost" style="flex:1; justify-content:center;">Cancel</button>
                 <a id="confirmDeleteBtn" href="#" class="btn btn-danger" style="flex:1; justify-content:center;">Delete</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal">
+            <div class="modal-icon" style="background:var(--amber-bg);">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </div>
+            <h3 class="modal-title">Log out?</h3>
+            <p class="modal-desc">You will be signed out of your account.</p>
+            <div class="modal-actions">
+                <button onclick="document.getElementById('logoutModal').style.display='none'" class="btn btn-ghost" style="flex:1; justify-content:center;">Cancel</button>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-primary" style="flex:1; justify-content:center; background:var(--amber);">Log out</a>
             </div>
         </div>
     </div>
