@@ -75,7 +75,7 @@
             <div class="budget-row">
                 <div class="budget-cat">
                     <div class="budget-dot" style="background:{{ category_colors[cat] }};"></div>
-                    <div class="budget-name">{{ cat }}</div>
+                    <div class="budget-name">{{ cat }}{% if category_counts.get(cat, 0) > 0 %} <span style="font-size:11px; color:var(--text-muted); font-weight:400;">({{ category_counts[cat] }} tx{{ 's' if category_counts[cat] != 1 }})</span>{% endif %}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:4px;">
                     <span style="color:var(--text-muted); font-size:14px;">$</span>

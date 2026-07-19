@@ -293,13 +293,18 @@ def budgets():
     total_spent = sum(e.amount for e in expenses)
     remaining_budget = total_budget - total_spent if total_budget > 0 else 0
 
+    category_counts = {}
+    for e in expenses:
+        category_counts[e.category] = category_counts.get(e.category, 0) + 1
+
     months = ['January','February','March','April','May','June',
               'July','August','September','October','November','December']
 
     return render_template('budgets.html', user=current_user,
         expense_categories=EXPENSE_CATEGORIES, budget_map=budget_map,
         category_colors=CATEGORY_COLORS, month=month, year=year, months=months,
-        total_budget=total_budget, total_spent=total_spent, remaining_budget=remaining_budget)
+        total_budget=total_budget, total_spent=total_spent, remaining_budget=remaining_budget,
+        category_counts=category_counts)
 
 @finance.route('/copy-budgets', methods=['POST'])
 @login_required
