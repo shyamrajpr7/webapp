@@ -47,6 +47,11 @@
             <div style="font-size:13px; color:var(--text-muted);">
                 <strong style="color:var(--text-secondary);">{{ categories_used }}</strong> categor{{ 'ies' if categories_used != 1 else 'y' }} used
             </div>
+            {% if last_tx_date %}
+            <div style="font-size:13px; color:var(--text-muted);">
+                Last activity: <strong style="color:var(--text-secondary);">{{ last_tx_date }}</strong>
+            </div>
+            {% endif %}
         </div>
 
         {# Profile Completion #}

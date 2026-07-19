@@ -119,8 +119,11 @@ def profile():
     if categories_used >= 3: score += 25
     if budget_count > 0: score += 25
 
+    last_tx = max(transactions, key=lambda t: t.date) if transactions else None
+    last_tx_date = last_tx.date.strftime('%b %d, %Y') if last_tx else None
+
     return render_template('profile.html', user=current_user, tx_count=tx_count,
         total_income=total_income, total_expenses=total_expenses,
         account_days=account_days, categories_used=categories_used,
         avg_expense=avg_expense, net_worth=net_worth, account_months=account_months,
-        profile_score=score)
+        profile_score=score, last_tx_date=last_tx_date)
