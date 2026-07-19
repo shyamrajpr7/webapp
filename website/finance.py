@@ -414,3 +414,36 @@ def export_all_csv():
         mimetype='text/csv',
         headers={'Content-Disposition': 'attachment;filename=all_transactions.csv'}
     )
+
+@finance.route('/export-budgets')
+@login_required
+def export_budgets():
+    month = request.args.get('month', datetime.now().month, type=int)
+    year = request.args.get('year', datetime.now().year, type=int)
+    months = ['','January','February','March','April','May','June','July','August','September','October','November','December']
+
+    budgets = Budget.query.filter_by(user_id=current_user.id, month=month, year=year).all()
+    budget_map = {b.category: b.amount for b in budgets}
+
+    expenses = Transaction.query.filter_by(user_id=current_user.id, type='expense').filter(
+        db.extract('month', Transaction.date) == month,
+        db.extract('year', Transaction.date) == year).all()
+    spent_map = {}
+    for e in expenses:
+        spent_map[e.category] = spent_map.get(e.category, 0) + e.amount
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Category', 'Budget', 'Spent', 'Remaining'])
+    for cat in EXPENSE_CATEGORIES:
+        b = budget_map.get(cat, 0)
+        s = spent_map.get(cat, 0)
+        r = b - s if b > 0 else 0
+        writer.writerow([cat, f'{b:.2f}', f'{s:.2f}', f'{r:.2f}'])
+
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment;filename=budgets_{year}_{month:02d}.csv'}
+    )
