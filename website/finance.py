@@ -257,6 +257,21 @@ def delete_transaction(id):
         flash('Transaction deleted.', 'success')
     return redirect(url_for('finance.dashboard'))
 
+@finance.route('/duplicate-transaction/<int:id>')
+@login_required
+def duplicate_transaction(id):
+    t = Transaction.query.get_or_404(id)
+    if t.user_id != current_user.id:
+        flash('Unauthorized.', 'error')
+        return redirect(url_for('finance.dashboard'))
+    new_t = Transaction(user_id=current_user.id, type=t.type, amount=t.amount,
+        category=t.category, description=t.description + ' (copy)',
+        date=datetime.now(), recurring=t.recurring)
+    db.session.add(new_t)
+    db.session.commit()
+    flash('Transaction duplicated!', 'success')
+    return redirect(url_for('finance.dashboard'))
+
 @finance.route('/budgets', methods=['GET', 'POST'])
 @login_required
 def budgets():
