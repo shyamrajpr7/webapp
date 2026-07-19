@@ -30,6 +30,10 @@
         <div style="text-align:center; min-width:160px;">
             <div style="font-size:20px; font-weight:700; color:var(--text); letter-spacing:-0.3px;">{{ months[month - 1] }} {{ year }}</div>
         </div>
+        {% set now = now if now is defined else none %}
+        {% if month != current_month or year != current_year %}
+        <a href="?month={{ current_month }}&year={{ current_year }}" style="padding:6px 12px; border-radius:8px; background:var(--primary-subtle); color:var(--primary); font-size:12px; font-weight:600; text-decoration:none; transition:all 0.15s;">Today</a>
+        {% endif %}
         <a href="?month={{ next_month }}&year={{ next_year }}" style="width:36px; height:36px; border-radius:10px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-secondary); transition:all 0.15s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-secondary)'">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         </a>

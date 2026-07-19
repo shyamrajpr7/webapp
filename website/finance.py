@@ -187,7 +187,7 @@ def dashboard():
         days_in_month=days_in_month, remaining_budget=remaining_budget,
         spending_pace_pct=spending_pace_pct,
         most_active_category=most_active_category, most_active_count=most_active_count,
-        monthly_summary=monthly_summary)
+        monthly_summary=monthly_summary, current_month=now.month, current_year=now.year)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
