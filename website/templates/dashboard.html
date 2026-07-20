@@ -371,6 +371,7 @@
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="width:10px; height:10px; border-radius:3px; background:{{ item.color }}; flex-shrink:0;"></div>
                     <span style="flex:1; font-size:13px; color:var(--text-secondary);">{{ item.category }}</span>
+                    <span style="font-size:11px; color:var(--text-muted);">{{ item.count }} tx{{ 's' if item.count != 1 }}</span>
                     <span style="font-size:13px; font-weight:600; color:var(--text);">${{ "%.0f"|format(item.amount) }}</span>
                 </div>
                 {% endfor %}

@@ -154,7 +154,8 @@ def dashboard():
 
     max_expense = max(expense_by_cat.values()) if expense_by_cat else 1
     chart_data = [{'category': cat, 'amount': expense_by_cat.get(cat, 0),
-                    'color': CATEGORY_COLORS.get(cat, '#6b7280')}
+                    'color': CATEGORY_COLORS.get(cat, '#6b7280'),
+                    'count': category_counts.get(cat, 0)}
                   for cat in EXPENSE_CATEGORIES if expense_by_cat.get(cat, 0) > 0]
 
     alerts = []
