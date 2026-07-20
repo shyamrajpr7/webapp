@@ -504,11 +504,11 @@
     {% if all_transactions %}
     <table>
         <thead>
-            <tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th style="text-align:right;">Amount</th><th style="width:70px;"></th></tr>
+            <tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th>Notes</th><th style="text-align:right;">Amount</th><th style="width:70px;"></th></tr>
         </thead>
         <tbody>
             {% for t in all_transactions %}
-            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}" data-date="{{ t.date.strftime('%Y%m%d') }}" data-amount="{{ t.amount }}" data-recurring="{{ 'yes' if t.recurring else 'no' }}" data-index="{{ loop.index }}" {{ 'style="display:none;"' if loop.index > 10 }}>
+            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}" data-notes="{{ (t.notes or '')|lower }}" data-date="{{ t.date.strftime('%Y%m%d') }}" data-amount="{{ t.amount }}" data-recurring="{{ 'yes' if t.recurring else 'no' }}" data-index="{{ loop.index }}" {{ 'style="display:none;"' if loop.index > 10 }}>
                 <td style="color:var(--text-secondary);">{{ t.date.strftime('%b %d, %Y') }}</td>
                 <td><span class="badge {{ t.type }}">{{ t.type }}</span></td>
                 <td>
@@ -523,6 +523,7 @@
                     </div>
                 </td>
                 <td style="color:var(--text-muted);">{{ t.description or '---' }}</td>
+                <td style="color:var(--text-muted); font-size:12px; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ t.notes or '---' }}</td>
                 <td style="text-align:right; font-weight:600; font-variant-numeric:tabular-nums; color:{{ '#059669' if t.type == 'income' else 'var(--red)' }};">
                     {{ '+' if t.type == 'income' else '-' }}${{ "%.2f"|format(t.amount) }}
                 </td>
@@ -570,7 +571,7 @@ function filterTransactions() {
         const matchType = type === 'all' || row.dataset.type === type;
         const matchCat = cat === 'all' || row.dataset.category === cat;
         const matchRecur = recur === 'all' || (recur === 'recurring' && row.dataset.recurring === 'yes') || (recur === 'one-time' && row.dataset.recurring === 'no');
-        const matchSearch = !search || row.dataset.desc.includes(search) || row.dataset.category.toLowerCase().includes(search);
+        const matchSearch = !search || row.dataset.desc.includes(search) || row.dataset.category.toLowerCase().includes(search) || (row.dataset.notes && row.dataset.notes.includes(search));
         const visible = matchType && matchCat && matchRecur && matchSearch;
         row.style.display = visible ? '' : 'none';
         if (visible) visibleCount++;

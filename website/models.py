@@ -21,6 +21,7 @@ class Transaction(db.Model):
     amount = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200), default='')
+    notes = db.Column(db.Text, default='')
     date = db.Column(db.DateTime, default=datetime.utcnow)
     recurring = db.Column(db.Boolean, default=False)
 

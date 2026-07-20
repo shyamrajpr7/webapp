@@ -44,5 +44,10 @@ def create_app():
             db.session.commit()
         except Exception:
             pass
+        try:
+            db.session.execute(db.text('ALTER TABLE "transaction" ADD COLUMN notes TEXT DEFAULT \'\''))
+            db.session.commit()
+        except Exception:
+            pass
 
     return app

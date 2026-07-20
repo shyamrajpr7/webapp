@@ -62,6 +62,11 @@
                 <input type="text" name="description" value="{{ transaction.description or '' }}" placeholder="What was this for?"/>
             </div>
 
+            <div class="field" style="margin-top:12px;">
+                <label>Notes <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label>
+                <textarea name="notes" rows="3" placeholder="Additional notes or details...">{{ transaction.notes or '' }}</textarea>
+            </div>
+
             <div style="display:flex; gap:12px; margin-top:8px;">
                 <a href="{{ url_for('finance.dashboard') }}" class="btn btn-ghost" style="flex:1; padding:12px; font-size:15px; font-weight:600; text-align:center; justify-content:center;">Cancel</a>
                 <button type="submit" class="btn btn-primary" style="flex:1; padding:12px; font-size:15px; font-weight:600;">Save Changes</button>

@@ -205,9 +205,10 @@ def add_transaction():
         else:
             date_str = request.form.get('date')
             tx_date = datetime.strptime(date_str, '%Y-%m-%d') if date_str else datetime.now()
+            notes = request.form.get('notes', '')
             t = Transaction(user_id=current_user.id, type=t_type,
                 amount=amount, category=category, description=description,
-                date=tx_date, recurring=bool(request.form.get('recurring')))
+                notes=notes, date=tx_date, recurring=bool(request.form.get('recurring')))
             db.session.add(t)
             db.session.commit()
             flash('Transaction added!', 'success')
@@ -230,6 +231,7 @@ def edit_transaction(id):
         t.amount = request.form.get('amount', type=float)
         t.category = request.form.get('category')
         t.description = request.form.get('description', '')
+        t.notes = request.form.get('notes', '')
         t.recurring = bool(request.form.get('recurring'))
         date_str = request.form.get('date')
         if date_str:
@@ -355,9 +357,9 @@ def export_csv():
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(['Date', 'Type', 'Category', 'Description', 'Amount'])
+    writer.writerow(['Date', 'Type', 'Category', 'Description', 'Notes', 'Amount'])
     for t in sorted(monthly, key=lambda x: x.date, reverse=True):
-        writer.writerow([t.date.strftime('%Y-%m-%d'), t.type, t.category, t.description or '', f'{t.amount:.2f}'])
+        writer.writerow([t.date.strftime('%Y-%m-%d'), t.type, t.category, t.description or '', t.notes or '', f'{t.amount:.2f}'])
 
     output.seek(0)
     return Response(
@@ -403,10 +405,10 @@ def export_all_csv():
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(['Date', 'Type', 'Category', 'Description', 'Recurring', 'Amount'])
+    writer.writerow(['Date', 'Type', 'Category', 'Description', 'Notes', 'Recurring', 'Amount'])
     for t in transactions:
         writer.writerow([t.date.strftime('%Y-%m-%d'), t.type, t.category, t.description or '',
-            'Yes' if t.recurring else 'No', f'{t.amount:.2f}'])
+            t.notes or '', 'Yes' if t.recurring else 'No', f'{t.amount:.2f}'])
 
     output.seek(0)
     return Response(
