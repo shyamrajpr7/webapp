@@ -440,6 +440,37 @@
 </div>
 {% endif %}
 
+{# Category Spending Trend #}
+{% if cat_trend %}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header"><h3>Category Trends (6 Months)</h3></div>
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+        {% for cat, values in cat_trend.items() %}
+        <div style="padding:16px; background:var(--bg); border-radius:12px; border:1px solid var(--border-light);">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                <div style="width:10px; height:10px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
+                <span style="font-size:13px; font-weight:500; color:var(--text);">{{ cat }}</span>
+            </div>
+            <div style="display:flex; align-items:flex-end; gap:3px; height:48px;">
+                {% set max_val = values|max if values|max > 0 else 1 %}
+                {% for v in values %}
+                <div style="flex:1; height:{{ (v / max_val * 100) if max_val > 0 else 0 }}%; background:{{ category_colors.get(cat, '#6b7280') }}; border-radius:3px 3px 0 0; min-height:{{ '2px' if v > 0 else '0' }}; opacity:{{ '1' if loop.last else '0.5' }};" title="${{ '%.0f'|format(v) }}"></div>
+                {% endfor %}
+            </div>
+            {% set trend_diff = values[-1] - values[0] if values|length >= 2 else 0 %}
+            {% set trend_pct = ((values[-1] - values[0]) / values[0] * 100) if values[0] > 0 else 0 %}
+            <div style="font-size:11px; color:var(--text-muted); margin-top:8px; display:flex; justify-content:space-between;">
+                <span>${{ "%.0f"|format(values[-1]) }} this month</span>
+                {% if values[0] > 0 %}
+                <span style="color:{{ 'var(--red)' if trend_diff > 0 else 'var(--green)' if trend_diff < 0 else 'var(--text-muted)' }};">{{ '+' if trend_diff > 0 else '' }}{{ "%.0f"|format(trend_pct) }}%</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 {# Budget Progress + Quick Actions #}
 <div class="grid grid-2" style="margin-bottom:24px;">
     {# Budget Progress #}

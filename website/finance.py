@@ -184,6 +184,20 @@ def dashboard():
             'expenses': sum(t.amount for t in mt if t.type == 'expense'),
         })
 
+    cat_trend = {}
+    for cat in EXPENSE_CATEGORIES:
+        trend = []
+        for i in range(5, -1, -1):
+            m = now.month - i
+            y = now.year
+            while m <= 0:
+                m += 12
+                y -= 1
+            mt = [t for t in transactions if t.date.month == m and t.date.year == y and t.type == 'expense' and t.category == cat]
+            trend.append(sum(t.amount for t in mt))
+        if any(v > 0 for v in trend):
+            cat_trend[cat] = trend
+
     all_vals = [h['income'] for h in monthly_history] + [h['expenses'] for h in monthly_history]
     bar_max = max(all_vals) if all_vals else 1
 
@@ -206,7 +220,8 @@ def dashboard():
         most_active_category=most_active_category, most_active_count=most_active_count,
         monthly_summary=monthly_summary, current_month=now.month, current_year=now.year,
         start_date=start_date, end_date=end_date,
-        spending_goal=spending_goal, goal_progress=goal_progress)
+        spending_goal=spending_goal, goal_progress=goal_progress,
+        cat_trend=cat_trend)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
