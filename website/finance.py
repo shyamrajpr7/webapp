@@ -5,7 +5,7 @@ import csv
 import io
 import calendar
 from . import db
-from .models import Transaction, Budget
+from .models import Transaction, Budget, SpendingGoal
 
 finance = Blueprint('finance', __name__)
 
@@ -134,6 +134,12 @@ def dashboard():
 
     budget_usage_pct = (expenses / total_budget * 100) if total_budget > 0 else 0
 
+    spending_goal = SpendingGoal.query.filter_by(
+        user_id=current_user.id, month=month, year=year).first()
+    goal_progress = 0
+    if spending_goal and spending_goal.target_amount > 0:
+        goal_progress = (expenses / spending_goal.target_amount * 100) if spending_goal.target_amount > 0 else 0
+
     spending_data = []
 
     spending_data = []
@@ -199,7 +205,8 @@ def dashboard():
         spending_pace_pct=spending_pace_pct,
         most_active_category=most_active_category, most_active_count=most_active_count,
         monthly_summary=monthly_summary, current_month=now.month, current_year=now.year,
-        start_date=start_date, end_date=end_date)
+        start_date=start_date, end_date=end_date,
+        spending_goal=spending_goal, goal_progress=goal_progress)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
@@ -461,3 +468,40 @@ def export_budgets():
         mimetype='text/csv',
         headers={'Content-Disposition': f'attachment;filename=budgets_{year}_{month:02d}.csv'}
     )
+
+@finance.route('/set-spending-goal', methods=['POST'])
+@login_required
+def set_spending_goal():
+    now = datetime.now()
+    month = request.form.get('month', now.month, type=int)
+    year = request.form.get('year', now.year, type=int)
+    target = request.form.get('target_amount', type=float)
+
+    if not target or target <= 0:
+        flash('Please enter a valid goal amount.', 'error')
+    else:
+        existing = SpendingGoal.query.filter_by(
+            user_id=current_user.id, month=month, year=year).first()
+        if existing:
+            existing.target_amount = target
+        else:
+            db.session.add(SpendingGoal(
+                user_id=current_user.id, target_amount=target,
+                month=month, year=year))
+        db.session.commit()
+        flash(f'Spending goal set to ${target:,.0f}!', 'success')
+    return redirect(url_for('finance.dashboard', month=month, year=year))
+
+@finance.route('/delete-spending-goal', methods=['POST'])
+@login_required
+def delete_spending_goal():
+    now = datetime.now()
+    month = request.form.get('month', now.month, type=int)
+    year = request.form.get('year', now.year, type=int)
+    goal = SpendingGoal.query.filter_by(
+        user_id=current_user.id, month=month, year=year).first()
+    if goal:
+        db.session.delete(goal)
+        db.session.commit()
+        flash('Spending goal removed.', 'success')
+    return redirect(url_for('finance.dashboard', month=month, year=year))
