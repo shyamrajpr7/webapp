@@ -645,6 +645,8 @@
             <option value="pinned">Pinned</option>
             <option value="unpinned">Unpinned</option>
         </select>
+        <input type="number" id="minAmount" placeholder="Min $" onkeyup="filterTransactions()" onchange="filterTransactions()" style="width:90px;"/>
+        <input type="number" id="maxAmount" placeholder="Max $" onkeyup="filterTransactions()" onchange="filterTransactions()" style="width:90px;"/>
         <select id="sortSelect" onchange="sortTransactions()" style="width:180px;">
             <option value="date-desc">Newest First</option>
             <option value="date-asc">Oldest First</option>
@@ -724,14 +726,18 @@ function filterTransactions() {
     const cat = document.getElementById('catFilter').value;
     const recur = document.getElementById('recurFilter').value;
     const pinned = document.getElementById('pinnedFilter').value;
+    const minAmt = parseFloat(document.getElementById('minAmount').value) || 0;
+    const maxAmt = parseFloat(document.getElementById('maxAmount').value) || Infinity;
     let visibleCount = 0;
     document.querySelectorAll('tbody tr').forEach(row => {
         const matchType = type === 'all' || row.dataset.type === type;
         const matchCat = cat === 'all' || row.dataset.category === cat;
         const matchRecur = recur === 'all' || (recur === 'recurring' && row.dataset.recurring === 'yes') || (recur === 'one-time' && row.dataset.recurring === 'no');
         const matchPinned = pinned === 'all' || (pinned === 'pinned' && row.dataset.pinned === 'yes') || (pinned === 'unpinned' && row.dataset.pinned === 'no');
+        const amt = parseFloat(row.dataset.amount);
+        const matchAmount = amt >= minAmt && amt <= maxAmt;
         const matchSearch = !search || row.dataset.desc.includes(search) || row.dataset.category.toLowerCase().includes(search) || (row.dataset.notes && row.dataset.notes.includes(search));
-        const visible = matchType && matchCat && matchRecur && matchPinned && matchSearch;
+        const visible = matchType && matchCat && matchRecur && matchPinned && matchAmount && matchSearch;
         row.style.display = visible ? '' : 'none';
         if (visible) visibleCount++;
     });
