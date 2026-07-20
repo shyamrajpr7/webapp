@@ -38,6 +38,15 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         </a>
     </div>
+    <form method="GET" style="display:flex; align-items:center; gap:8px;">
+        <input type="date" name="start_date" value="{{ start_date }}" style="width:140px; padding:6px 10px; font-size:12px;"/>
+        <span style="color:var(--text-muted); font-size:12px;">to</span>
+        <input type="date" name="end_date" value="{{ end_date }}" style="width:140px; padding:6px 10px; font-size:12px;"/>
+        <button type="submit" class="btn btn-ghost btn-sm" style="font-size:12px;">Filter</button>
+        {% if start_date or end_date %}
+        <a href="{{ url_for('finance.dashboard', month=month, year=year) }}" class="btn btn-ghost btn-sm" style="font-size:12px; color:var(--red);">Clear</a>
+        {% endif %}
+    </form>
 </div>
 
 {# Budget Alerts #}

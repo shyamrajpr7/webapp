@@ -30,12 +30,23 @@ def dashboard():
     now = datetime.now()
     month = request.args.get('month', now.month, type=int)
     year = request.args.get('year', now.year, type=int)
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
 
     months = ['January','February','March','April','May','June',
               'July','August','September','October','November','December']
 
     transactions = Transaction.query.filter_by(user_id=current_user.id).all()
-    monthly = [t for t in transactions if t.date.month == month and t.date.year == year]
+
+    if start_date and end_date:
+        try:
+            sd = datetime.strptime(start_date, '%Y-%m-%d')
+            ed = datetime.strptime(end_date, '%Y-%m-%d')
+            monthly = [t for t in transactions if sd.date() <= t.date.date() <= ed.date()]
+        except ValueError:
+            monthly = [t for t in transactions if t.date.month == month and t.date.year == year]
+    else:
+        monthly = [t for t in transactions if t.date.month == month and t.date.year == year]
 
     income = sum(t.amount for t in monthly if t.type == 'income')
     expenses = sum(t.amount for t in monthly if t.type == 'expense')
@@ -187,7 +198,8 @@ def dashboard():
         days_in_month=days_in_month, remaining_budget=remaining_budget,
         spending_pace_pct=spending_pace_pct,
         most_active_category=most_active_category, most_active_count=most_active_count,
-        monthly_summary=monthly_summary, current_month=now.month, current_year=now.year)
+        monthly_summary=monthly_summary, current_month=now.month, current_year=now.year,
+        start_date=start_date, end_date=end_date)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
