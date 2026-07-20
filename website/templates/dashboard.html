@@ -552,6 +552,11 @@
             <option value="recurring">Recurring</option>
             <option value="one-time">One-time</option>
         </select>
+        <select id="pinnedFilter" onchange="filterTransactions()" style="width:120px;">
+            <option value="all">All</option>
+            <option value="pinned">Pinned</option>
+            <option value="unpinned">Unpinned</option>
+        </select>
         <select id="sortSelect" onchange="sortTransactions()" style="width:180px;">
             <option value="date-desc">Newest First</option>
             <option value="date-asc">Oldest First</option>
@@ -569,7 +574,7 @@
         </thead>
         <tbody>
             {% for t in all_transactions %}
-            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}" data-notes="{{ (t.notes or '')|lower }}" data-date="{{ t.date.strftime('%Y%m%d') }}" data-amount="{{ t.amount }}" data-recurring="{{ 'yes' if t.recurring else 'no' }}" data-index="{{ loop.index }}" {{ 'style="display:none;"' if loop.index > 10 }}>
+            <tr data-type="{{ t.type }}" data-category="{{ t.category }}" data-desc="{{ (t.description or '')|lower }}" data-notes="{{ (t.notes or '')|lower }}" data-date="{{ t.date.strftime('%Y%m%d') }}" data-amount="{{ t.amount }}" data-recurring="{{ 'yes' if t.recurring else 'no' }}" data-pinned="{{ 'yes' if t.pinned else 'no' }}" data-index="{{ loop.index }}" {{ 'style="display:none;"' if loop.index > 10 }}>
                 <td style="color:var(--text-secondary);">{{ t.date.strftime('%b %d, %Y') }}</td>
                 <td><span class="badge {{ t.type }}">{{ t.type }}</span></td>
                 <td>
@@ -589,6 +594,9 @@
                     {{ '+' if t.type == 'income' else '-' }}${{ "%.2f"|format(t.amount) }}
                 </td>
                 <td style="white-space:nowrap;">
+                    <a href="{{ url_for('finance.toggle_pin', id=t.id) }}" style="color:{{ 'var(--amber)' if t.pinned else 'var(--text-muted)' }}; text-decoration:none; font-size:13px; padding:4px 6px; border-radius:4px;" title="{{ 'Unpin' if t.pinned else 'Pin' }}">
+                        {% if t.pinned %}&#9733;{% else %}&#9734;{% endif %}
+                    </a>
                     <a href="{{ url_for('finance.duplicate_transaction', id=t.id) }}" style="color:var(--text-muted); text-decoration:none; font-size:13px; padding:4px 6px; border-radius:4px;" title="Duplicate"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></a>
                     <a href="{{ url_for('finance.edit_transaction', id=t.id) }}" style="color:var(--primary); text-decoration:none; font-size:13px; padding:4px 6px; border-radius:4px;" title="Edit">&#9998;</a>
                     <a href="{{ url_for('finance.delete_transaction', id=t.id) }}" onclick="event.preventDefault(); confirmDelete(this.href);" style="color:var(--text-muted); text-decoration:none; font-size:16px; line-height:1; padding:4px;" title="Delete">&times;</a>
@@ -627,13 +635,15 @@ function filterTransactions() {
     const type = document.getElementById('typeFilter').value;
     const cat = document.getElementById('catFilter').value;
     const recur = document.getElementById('recurFilter').value;
+    const pinned = document.getElementById('pinnedFilter').value;
     let visibleCount = 0;
     document.querySelectorAll('tbody tr').forEach(row => {
         const matchType = type === 'all' || row.dataset.type === type;
         const matchCat = cat === 'all' || row.dataset.category === cat;
         const matchRecur = recur === 'all' || (recur === 'recurring' && row.dataset.recurring === 'yes') || (recur === 'one-time' && row.dataset.recurring === 'no');
+        const matchPinned = pinned === 'all' || (pinned === 'pinned' && row.dataset.pinned === 'yes') || (pinned === 'unpinned' && row.dataset.pinned === 'no');
         const matchSearch = !search || row.dataset.desc.includes(search) || row.dataset.category.toLowerCase().includes(search) || (row.dataset.notes && row.dataset.notes.includes(search));
-        const visible = matchType && matchCat && matchRecur && matchSearch;
+        const visible = matchType && matchCat && matchRecur && matchPinned && matchSearch;
         row.style.display = visible ? '' : 'none';
         if (visible) visibleCount++;
     });

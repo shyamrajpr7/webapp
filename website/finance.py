@@ -168,7 +168,7 @@ def dashboard():
                 alerts.append({'category': item['category'], 'spent': item['spent'],
                     'budget': item['budget'], 'percentage': pct, 'level': 'warning'})
 
-    recent = sorted(monthly, key=lambda t: t.date, reverse=True)[:10]
+    recent = sorted(monthly, key=lambda t: (t.pinned, t.date), reverse=True)[:10]
 
     monthly_history = []
     for i in range(5, -1, -1):
@@ -287,10 +287,22 @@ def duplicate_transaction(id):
         return redirect(url_for('finance.dashboard'))
     new_t = Transaction(user_id=current_user.id, type=t.type, amount=t.amount,
         category=t.category, description=t.description + ' (copy)',
-        date=datetime.now(), recurring=t.recurring)
+        notes=t.notes, date=datetime.now(), recurring=t.recurring)
     db.session.add(new_t)
     db.session.commit()
     flash('Transaction duplicated!', 'success')
+    return redirect(url_for('finance.dashboard'))
+
+@finance.route('/toggle-pin/<int:id>')
+@login_required
+def toggle_pin(id):
+    t = Transaction.query.get_or_404(id)
+    if t.user_id != current_user.id:
+        flash('Unauthorized.', 'error')
+        return redirect(url_for('finance.dashboard'))
+    t.pinned = not t.pinned
+    db.session.commit()
+    flash('Transaction pinned!' if t.pinned else 'Transaction unpinned.', 'success')
     return redirect(url_for('finance.dashboard'))
 
 @finance.route('/budgets', methods=['GET', 'POST'])

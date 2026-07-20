@@ -49,5 +49,10 @@ def create_app():
             db.session.commit()
         except Exception:
             pass
+        try:
+            db.session.execute(db.text('ALTER TABLE "transaction" ADD COLUMN pinned BOOLEAN DEFAULT 0'))
+            db.session.commit()
+        except Exception:
+            pass
 
     return app

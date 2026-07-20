@@ -24,6 +24,7 @@ class Transaction(db.Model):
     notes = db.Column(db.Text, default='')
     date = db.Column(db.DateTime, default=datetime.utcnow)
     recurring = db.Column(db.Boolean, default=False)
+    pinned = db.Column(db.Boolean, default=False)
 
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
