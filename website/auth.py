@@ -127,3 +127,18 @@ def profile():
         account_days=account_days, categories_used=categories_used,
         avg_expense=avg_expense, net_worth=net_worth, account_months=account_months,
         profile_score=score, last_tx_date=last_tx_date)
+
+@auth.route('/delete-account', methods=['POST'])
+@login_required
+def delete_account():
+    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+    for t in transactions:
+        db.session.delete(t)
+    budgets = Budget.query.filter_by(user_id=current_user.id).all()
+    for b in budgets:
+        db.session.delete(b)
+    db.session.delete(current_user)
+    db.session.commit()
+    logout_user()
+    flash('Your account has been deleted.', 'success')
+    return redirect(url_for('auth.login'))

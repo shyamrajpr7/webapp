@@ -100,5 +100,31 @@
             </button>
         </form>
     </div>
+
+    {# Danger Zone #}
+    <div class="card" style="padding:32px; border-color:var(--red-light); margin-top:20px;">
+        <h3 style="font-size:16px; font-weight:600; color:var(--red); margin-bottom:8px;">Danger Zone</h3>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Permanently delete your account and all associated data. This action cannot be undone.</p>
+        <button onclick="document.getElementById('deleteAccountModal').style.display='flex'" class="btn btn-danger" style="font-size:13px;">
+            Delete Account
+        </button>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal-overlay" id="deleteAccountModal">
+    <div class="modal">
+        <div class="modal-icon danger">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h3 class="modal-title">Delete Account?</h3>
+        <p class="modal-desc">This will permanently delete your account, all transactions, and budgets. This cannot be undone.</p>
+        <div class="modal-actions">
+            <button onclick="document.getElementById('deleteAccountModal').style.display='none'" class="btn btn-ghost" style="flex:1; justify-content:center;">Cancel</button>
+            <form method="POST" action="{{ url_for('auth.delete_account') }}" style="flex:1;">
+                <button type="submit" class="btn btn-danger" style="width:100%; justify-content:center;">Yes, Delete</button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
