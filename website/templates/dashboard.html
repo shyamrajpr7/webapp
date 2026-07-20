@@ -129,6 +129,58 @@
 </div>
 {% endif %}
 
+{# Savings Goal #}
+{% if savings_goal %}
+<div class="card" style="margin-bottom:24px; border-color:{{ 'var(--green-light)' if savings_progress >= 100 else 'var(--amber-light)' if savings_progress >= 50 else 'var(--blue-light)' }};">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:40px; height:40px; border-radius:12px; background:{{ 'var(--green-bg)' if savings_progress >= 100 else 'var(--amber-bg)' if savings_progress >= 50 else 'var(--blue-bg)' }}; display:flex; align-items:center; justify-content:center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ 'var(--green)' if savings_progress >= 100 else 'var(--amber)' if savings_progress >= 50 else 'var(--blue)' }}" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+                <div style="font-size:15px; font-weight:600; color:var(--text);">Savings Goal</div>
+                <div style="font-size:12px; color:var(--text-muted);">Target: ${{ "%.0f"|format(savings_goal.target_amount) }}</div>
+            </div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:22px; font-weight:700; color:{{ 'var(--green)' if savings_progress >= 100 else 'var(--amber)' if savings_progress >= 50 else 'var(--blue)' }};">{{ "%.0f"|format([savings_progress, 0]|max) }}%</div>
+            <div style="font-size:12px; color:var(--text-muted);">${{ "%.0f"|format(balance) }} / ${{ "%.0f"|format(savings_goal.target_amount) }}</div>
+        </div>
+    </div>
+    <div class="progress-bar" style="height:8px;">
+        <div class="progress-fill" style="width:{{ [savings_progress, 100]|min }}%; background:{{ 'var(--green)' if savings_progress >= 100 else 'var(--amber)' if savings_progress >= 50 else 'var(--blue)' }};"></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+        <span style="font-size:12px; color:var(--text-muted);">${{ "%.0f"|format([savings_goal.target_amount - balance, 0]|max) }} {{ 'left to save' if balance < savings_goal.target_amount else 'goal reached!' }}</span>
+        <form method="POST" action="{{ url_for('finance.delete_savings_goal') }}" style="display:inline;">
+            <input type="hidden" name="month" value="{{ month }}"/>
+            <input type="hidden" name="year" value="{{ year }}"/>
+            <button type="submit" style="background:none; border:none; color:var(--text-muted); font-size:11px; cursor:pointer; text-decoration:underline;">Remove goal</button>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="card" style="margin-bottom:24px; border-style:dashed;">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:40px; height:40px; border-radius:12px; background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+                <div style="font-size:14px; font-weight:500; color:var(--text-secondary);">No savings goal set</div>
+                <div style="font-size:12px; color:var(--text-muted);">Set a monthly savings target to stay motivated</div>
+            </div>
+        </div>
+        <form method="POST" action="{{ url_for('finance.set_savings_goal') }}" style="display:flex; align-items:center; gap:8px;">
+            <input type="hidden" name="month" value="{{ month }}"/>
+            <input type="hidden" name="year" value="{{ year }}"/>
+            <input type="number" name="target_amount" min="1" step="1" placeholder="e.g. 500" style="width:120px; padding:6px 10px; font-size:13px;"/>
+            <button type="submit" class="btn btn-primary btn-sm" style="font-size:12px;">Set Goal</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
 {# Stat Cards #}
 <div class="grid grid-4" style="margin-bottom:24px;">
     <div class="card stat-card income">

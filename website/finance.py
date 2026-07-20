@@ -5,7 +5,7 @@ import csv
 import io
 import calendar
 from . import db
-from .models import Transaction, Budget, SpendingGoal
+from .models import Transaction, Budget, SpendingGoal, SavingsGoal
 
 finance = Blueprint('finance', __name__)
 
@@ -140,6 +140,12 @@ def dashboard():
     if spending_goal and spending_goal.target_amount > 0:
         goal_progress = (expenses / spending_goal.target_amount * 100) if spending_goal.target_amount > 0 else 0
 
+    savings_goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id, month=month, year=year).first()
+    savings_progress = 0
+    if savings_goal and savings_goal.target_amount > 0:
+        savings_progress = (balance / savings_goal.target_amount * 100) if savings_goal.target_amount > 0 else 0
+
     spending_data = []
 
     spending_data = []
@@ -222,6 +228,7 @@ def dashboard():
         monthly_summary=monthly_summary, current_month=now.month, current_year=now.year,
         start_date=start_date, end_date=end_date,
         spending_goal=spending_goal, goal_progress=goal_progress,
+        savings_goal=savings_goal, savings_progress=savings_progress,
         cat_trend=cat_trend)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
@@ -577,4 +584,41 @@ def delete_spending_goal():
         db.session.delete(goal)
         db.session.commit()
         flash('Spending goal removed.', 'success')
+    return redirect(url_for('finance.dashboard', month=month, year=year))
+
+@finance.route('/set-savings-goal', methods=['POST'])
+@login_required
+def set_savings_goal():
+    now = datetime.now()
+    month = request.form.get('month', now.month, type=int)
+    year = request.form.get('year', now.year, type=int)
+    target = request.form.get('target_amount', type=float)
+
+    if not target or target <= 0:
+        flash('Please enter a valid goal amount.', 'error')
+    else:
+        existing = SavingsGoal.query.filter_by(
+            user_id=current_user.id, month=month, year=year).first()
+        if existing:
+            existing.target_amount = target
+        else:
+            db.session.add(SavingsGoal(
+                user_id=current_user.id, target_amount=target,
+                month=month, year=year))
+        db.session.commit()
+        flash(f'Savings goal set to ${target:,.0f}!', 'success')
+    return redirect(url_for('finance.dashboard', month=month, year=year))
+
+@finance.route('/delete-savings-goal', methods=['POST'])
+@login_required
+def delete_savings_goal():
+    now = datetime.now()
+    month = request.form.get('month', now.month, type=int)
+    year = request.form.get('year', now.year, type=int)
+    goal = SavingsGoal.query.filter_by(
+        user_id=current_user.id, month=month, year=year).first()
+    if goal:
+        db.session.delete(goal)
+        db.session.commit()
+        flash('Savings goal removed.', 'success')
     return redirect(url_for('finance.dashboard', month=month, year=year))
