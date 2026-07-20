@@ -496,6 +496,51 @@ def export_budgets():
         headers={'Content-Disposition': f'attachment;filename=budgets_{year}_{month:02d}.csv'}
     )
 
+@finance.route('/export-filtered-csv')
+@login_required
+def export_filtered_csv():
+    month = request.args.get('month', datetime.now().month, type=int)
+    year = request.args.get('year', datetime.now().year, type=int)
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    type_filter = request.args.get('type', 'all')
+    category_filter = request.args.get('category', 'all')
+    search = request.args.get('search', '')
+
+    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+
+    if start_date and end_date:
+        try:
+            sd = datetime.strptime(start_date, '%Y-%m-%d')
+            ed = datetime.strptime(end_date, '%Y-%m-%d')
+            filtered = [t for t in transactions if sd.date() <= t.date.date() <= ed.date()]
+        except ValueError:
+            filtered = [t for t in transactions if t.date.month == month and t.date.year == year]
+    else:
+        filtered = [t for t in transactions if t.date.month == month and t.date.year == year]
+
+    if type_filter != 'all':
+        filtered = [t for t in filtered if t.type == type_filter]
+    if category_filter != 'all':
+        filtered = [t for t in filtered if t.category == category_filter]
+    if search:
+        search_lower = search.lower()
+        filtered = [t for t in filtered if search_lower in (t.description or '').lower() or search_lower in (t.notes or '').lower() or search_lower in t.category.lower()]
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Date', 'Type', 'Category', 'Description', 'Notes', 'Recurring', 'Amount'])
+    for t in sorted(filtered, key=lambda x: x.date, reverse=True):
+        writer.writerow([t.date.strftime('%Y-%m-%d'), t.type, t.category, t.description or '',
+            t.notes or '', 'Yes' if t.recurring else 'No', f'{t.amount:.2f}'])
+
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment;filename=filtered_transactions.csv'}
+    )
+
 @finance.route('/set-spending-goal', methods=['POST'])
 @login_required
 def set_spending_goal():
