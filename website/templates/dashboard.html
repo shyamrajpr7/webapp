@@ -120,6 +120,31 @@
     </div>
 </div>
 
+{# Achievement Badges #}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <div>
+            <h3>Achievements</h3>
+            <div class="card-subtitle">{{ badges_earned }}/{{ badges|length }} unlocked</div>
+        </div>
+    </div>
+    <div class="progress-bar" style="height:6px; margin-bottom:20px;">
+        <div class="progress-fill" style="width:{{ (badges_earned / badges|length * 100) if badges|length > 0 else 0 }}%; background:linear-gradient(90deg, var(--primary), var(--accent));"></div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px;">
+        {% for b in badges %}
+        <div style="padding:16px; border-radius:12px; text-align:center; border:1px solid {{ 'var(--border)' if b.earned else 'var(--border-light)' }}; background:{{ 'var(--primary-subtle)' if b.earned else 'var(--bg)' }}; opacity:{{ '1' if b.earned else '0.5' }}; transition:all 0.2s;">
+            <div style="font-size:28px; margin-bottom:8px; {{ '' if b.earned else 'filter:grayscale(1);' }}">{{ b.icon }}</div>
+            <div style="font-size:12px; font-weight:600; color:{{ 'var(--text)' if b.earned else 'var(--text-muted)' }}; margin-bottom:2px;">{{ b.name }}</div>
+            <div style="font-size:10px; color:var(--text-muted);">{{ b.description }}</div>
+            {% if b.earned %}
+            <div style="margin-top:8px; font-size:10px; font-weight:600; color:var(--green);">Unlocked</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 {# Spending Goal #}
 {% if spending_goal %}
 <div class="card" style="margin-bottom:24px; border-color:{{ 'var(--green-light)' if goal_progress < 80 else 'var(--amber-light)' if goal_progress < 100 else 'var(--red-light)' }};">

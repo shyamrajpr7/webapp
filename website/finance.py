@@ -221,6 +221,53 @@ def dashboard():
         daily_expenses[day] = daily_expenses.get(day, 0) + t.amount
     max_daily = max(daily_expenses.values()) if daily_expenses else 1
 
+    all_time_transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+    total_tx_count = len(all_time_transactions)
+    total_income = sum(t.amount for t in all_time_transactions if t.type == 'income')
+    total_expenses_all = sum(t.amount for t in all_time_transactions if t.type == 'expense')
+    all_categories_used = set(t.category for t in all_time_transactions)
+
+    positive_months = 0
+    for i in range(12):
+        m = now.month - i
+        y = now.year
+        while m <= 0:
+            m += 12
+            y -= 1
+        mt = [t for t in all_time_transactions if t.date.month == m and t.date.year == y]
+        mi = sum(t.amount for t in mt if t.type == 'income')
+        me = sum(t.amount for t in mt if t.type == 'expense')
+        if mi > me and len(mt) > 0:
+            positive_months += 1
+
+    unique_days = set()
+    for t in all_time_transactions:
+        unique_days.add(t.date.date())
+
+    max_single = max((t.amount for t in all_time_transactions if t.type == 'expense'), default=0)
+
+    budget_cats = Budget.query.filter_by(user_id=current_user.id, month=month, year=year).count()
+
+    badges = []
+    def add_badge(icon, name, desc, earned):
+        badges.append({'icon': icon, 'name': name, 'description': desc, 'earned': earned})
+    add_badge('\U0001f31f', 'First Steps', 'Add your first transaction', total_tx_count >= 1)
+    add_badge('\U0001f522', 'Getting Started', 'Log 10 transactions', total_tx_count >= 10)
+    add_badge('\U0001f3c6', 'Half Century', 'Log 50 transactions', total_tx_count >= 50)
+    add_badge('\U0001f680', 'Century Club', 'Log 100 transactions', total_tx_count >= 100)
+    add_badge('\U0001f4b5', 'Income Earner', 'Record your first income', total_income > 0)
+    add_badge('\U0001f4b8', 'Big Earner', 'Earn $10,000+ total', total_income >= 10000)
+    add_badge('\U0001f3af', 'Budget Setter', 'Set a budget for any category', budget_cats >= 1)
+    add_badge('\U0001f48e', 'Budget Master', 'Set budgets for all 9 categories', budget_cats >= 9)
+    add_badge('\U0001f4b0', 'Saver', 'Positive balance 3 months in a row', positive_months >= 3)
+    add_badge('\U0001f48e', 'Super Saver', 'Positive balance 6 months in a row', positive_months >= 6)
+    add_badge('\U0001f525', 'Big Spender', 'Single expense over $1,000', max_single >= 1000)
+    add_badge('\U0001f4c2', 'Explorer', 'Use all 9 expense categories', len([c for c in all_categories_used if c in EXPENSE_CATEGORIES]) >= 9)
+    add_badge('\U0001f4c5', 'Committed', 'Log transactions on 30+ unique days', len(unique_days) >= 30)
+    add_badge('\U0001f947', 'Dedicated', 'Log transactions on 100+ unique days', len(unique_days) >= 100)
+
+    badges_earned = sum(1 for b in badges if b['earned'])
+
     return render_template('dashboard.html', user=current_user, transactions=recent,
         income=income, expenses=expenses, balance=balance,
         savings_rate=savings_rate, spending_data=spending_data, chart_data=chart_data,
@@ -245,7 +292,9 @@ def dashboard():
         cat_trend=cat_trend,
         category_emojis=CATEGORY_EMOJIS,
         daily_expenses=daily_expenses,
-        max_daily=max_daily)
+        max_daily=max_daily,
+        badges=badges,
+        badges_earned=badges_earned)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
