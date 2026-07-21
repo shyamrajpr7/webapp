@@ -28,6 +28,7 @@ def create_app():
     def inject_globals():
         tx_count = 0
         sidebar_recent = []
+        sidebar_sparkline = []
         if current_user.is_authenticated:
             from .models import Transaction
             now = datetime.now()
@@ -37,9 +38,18 @@ def create_app():
             ).count()
             sidebar_recent = Transaction.query.filter_by(user_id=current_user.id).order_by(
                 Transaction.date.desc()).limit(5).all()
+            all_txns = Transaction.query.filter_by(user_id=current_user.id).all()
+            for i in range(5, -1, -1):
+                m = now.month - i
+                y = now.year
+                while m <= 0:
+                    m += 12
+                    y -= 1
+                mt = [t for t in all_txns if t.date.month == m and t.date.year == y and t.type == 'expense']
+                sidebar_sparkline.append(sum(t.amount for t in mt))
         return dict(tx_count=tx_count, page_load_time=datetime.now().strftime('%b %d, %Y %I:%M %p'),
                     datetime=datetime, sidebar_recent=sidebar_recent,
-                    category_emojis=CATEGORY_EMOJIS)
+                    category_emojis=CATEGORY_EMOJIS, sidebar_sparkline=sidebar_sparkline)
 
     from .views import views
     from .auth import auth
