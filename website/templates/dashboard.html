@@ -522,6 +522,26 @@
         <div class="card-header"><h3>Spending Breakdown</h3></div>
         {% if chart_data %}
         {% set total = chart_data | map(attribute='amount') | sum %}
+
+        {# Stacked comparison bar #}
+        {% if chart_data|length > 1 %}
+        <div style="margin-bottom:20px;">
+            <div style="display:flex; height:12px; border-radius:6px; overflow:hidden; gap:1px;">
+                {% for item in chart_data %}
+                <div style="width:{{ (item.amount / total * 100) if total > 0 else 0 }}%; background:{{ item.color }}; transition:width 0.6s ease;" title="{{ item.category }}: ${{ '%.0f'|format(item.amount) }}"></div>
+                {% endfor %}
+            </div>
+            <div style="display:flex; gap:12px; margin-top:8px; flex-wrap:wrap;">
+                {% for item in chart_data[:5] %}
+                <div style="display:flex; align-items:center; gap:4px; font-size:10px; color:var(--text-muted);">
+                    <div style="width:6px; height:6px; border-radius:2px; background:{{ item.color }};"></div>
+                    {{ item.category }} {{ "%.0f"|format(item.amount / total * 100 if total > 0 else 0) }}%
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <div style="display:flex; align-items:center; gap:32px;">
             <div style="position:relative; width:160px; height:160px; flex-shrink:0;">
                 <svg viewBox="0 0 100 100" width="160" height="160">
