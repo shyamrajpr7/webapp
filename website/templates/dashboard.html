@@ -642,6 +642,55 @@
 </div>
 {% endif %}
 
+{# Yearly Savings Summary #}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <h3>{{ year }} Year Summary</h3>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:20px;">
+        <div style="text-align:center; padding:16px; background:var(--green-bg); border-radius:12px;">
+            <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--green); margin-bottom:6px;">Total Income</div>
+            <div style="font-size:20px; font-weight:700; color:var(--green);">${{ "%.0f"|format(year_income) }}</div>
+        </div>
+        <div style="text-align:center; padding:16px; background:var(--red-bg); border-radius:12px;">
+            <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--red); margin-bottom:6px;">Total Expenses</div>
+            <div style="font-size:20px; font-weight:700; color:var(--red);">${{ "%.0f"|format(year_expenses) }}</div>
+        </div>
+        <div style="text-align:center; padding:16px; background:{{ 'var(--green-bg)' if year_savings >= 0 else 'var(--red-bg)' }}; border-radius:12px;">
+            <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:{{ 'var(--green)' if year_savings >= 0 else 'var(--red)' }}; margin-bottom:6px;">Net Savings</div>
+            <div style="font-size:20px; font-weight:700; color:{{ 'var(--green)' if year_savings >= 0 else 'var(--red)' }};">${{ "%.0f"|format(year_savings) }}</div>
+        </div>
+        <div style="text-align:center; padding:16px; background:var(--primary-subtle); border-radius:12px;">
+            <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary); margin-bottom:6px;">Savings Rate</div>
+            <div style="font-size:20px; font-weight:700; color:var(--primary);">{{ "%.0f"|format((year_savings / year_income * 100) if year_income > 0 else 0) }}%</div>
+        </div>
+    </div>
+    {% if year_income > 0 %}
+    <div style="display:flex; height:20px; border-radius:10px; overflow:hidden; background:var(--bg); margin-bottom:8px;">
+        <div style="width:{{ (year_income / (year_income + year_expenses) * 100) if (year_income + year_expenses) > 0 else 0 }}%; background:linear-gradient(90deg, #10b981, #34d399); transition:width 0.6s ease;"></div>
+        <div style="width:{{ (year_expenses / (year_income + year_expenses) * 100) if (year_income + year_expenses) > 0 else 0 }}%; background:linear-gradient(90deg, #ef4444, #f87171); transition:width 0.6s ease;"></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted);">
+        <span>Income {{ "%.0f"|format((year_income / (year_income + year_expenses) * 100) if (year_income + year_expenses) > 0 else 0) }}%</span>
+        <span>Expenses {{ "%.0f"|format((year_expenses / (year_income + year_expenses) * 100) if (year_income + year_expenses) > 0 else 0) }}%</span>
+    </div>
+    {% endif %}
+    {% if prev_year_savings != 0 %}
+    <div style="margin-top:14px; padding:10px 14px; background:var(--bg); border-radius:8px; font-size:12px; color:var(--text-secondary); display:flex; align-items:center; gap:8px;">
+        <span style="font-weight:600; color:{{ 'var(--green)' if year_savings > prev_year_savings else 'var(--red)' }};">
+            {{ '\U0001f4c8' if year_savings > prev_year_savings else '\U0001f4c9' if year_savings < prev_year_savings else '\u27a1\ufe0f' }}
+        </span>
+        {% if year_savings > prev_year_savings %}
+        You've saved ${{ "%.0f"|format(year_savings - prev_year_savings) }} more than this time last year!
+        {% elif year_savings < prev_year_savings %}
+        You've saved ${{ "%.0f"|format(prev_year_savings - year_savings) }} less than this time last year.
+        {% else %}
+        Savings on track with last year.
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
 {# Category Spending Trend #}
 {% if cat_trend %}
 <div class="card" style="margin-bottom:24px;">

@@ -345,6 +345,15 @@ def dashboard():
         health_label = 'Needs Work'
         health_color = 'var(--red)'
 
+    year_transactions = [t for t in transactions if t.date.year == year]
+    year_income = sum(t.amount for t in year_transactions if t.type == 'income')
+    year_expenses = sum(t.amount for t in year_transactions if t.type == 'expense')
+    year_savings = year_income - year_expenses
+    prev_year_transactions = [t for t in transactions if t.date.year == year - 1]
+    prev_year_income = sum(t.amount for t in prev_year_transactions if t.type == 'income')
+    prev_year_expenses = sum(t.amount for t in prev_year_transactions if t.type == 'expense')
+    prev_year_savings = prev_year_income - prev_year_expenses
+
     return render_template('dashboard.html', user=current_user, transactions=recent,
         income=income, expenses=expenses, balance=balance,
         savings_rate=savings_rate, spending_data=spending_data, chart_data=chart_data,
@@ -376,7 +385,11 @@ def dashboard():
         health_label=health_label,
         health_color=health_color,
         health_factors=health_factors,
-        spending_alerts=spending_alerts)
+        spending_alerts=spending_alerts,
+        year_income=year_income,
+        year_expenses=year_expenses,
+        year_savings=year_savings,
+        prev_year_savings=prev_year_savings)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
