@@ -268,6 +268,46 @@ def dashboard():
 
     badges_earned = sum(1 for b in badges if b['earned'])
 
+    health_score = 0
+    health_factors = []
+    if income > 0:
+        sr = max(0, min(savings_rate, 50)) / 50 * 25
+        health_score += sr
+        health_factors.append(('Savings rate', f'{savings_rate:.0f}%', sr / 25 * 100))
+    if total_budget > 0:
+        bu = max(0, min(budget_usage_pct, 120))
+        bscore = (1 - bu / 120) * 25 if bu <= 100 else 0
+        health_score += bscore
+        health_factors.append(('Budget adherence', f'{budget_usage_pct:.0f}%', bscore / 25 * 100))
+    tracking_score = min(total_tx_count / 30, 1) * 20
+    health_score += tracking_score
+    health_factors.append(('Transaction tracking', f'{total_tx_count} txns', tracking_score / 20 * 100))
+    if positive_months >= 3:
+        pm_score = min(positive_months / 6, 1) * 15
+        health_score += pm_score
+        health_factors.append(('Positive months', f'{positive_months}/12', pm_score / 15 * 100))
+    elif positive_months > 0:
+        pm_score = positive_months / 3 * 10
+        health_score += pm_score
+        health_factors.append(('Positive months', f'{positive_months}/12', pm_score / 10 * 100))
+    if budget_cats >= 3:
+        bs_score = min(budget_cats / 9, 1) * 15
+        health_score += bs_score
+        health_factors.append(('Budget coverage', f'{budget_cats}/9', bs_score / 15 * 100))
+    health_score = min(round(health_score), 100)
+    if health_score >= 80:
+        health_label = 'Excellent'
+        health_color = 'var(--green)'
+    elif health_score >= 60:
+        health_label = 'Good'
+        health_color = 'var(--blue)'
+    elif health_score >= 40:
+        health_label = 'Fair'
+        health_color = 'var(--amber)'
+    else:
+        health_label = 'Needs Work'
+        health_color = 'var(--red)'
+
     return render_template('dashboard.html', user=current_user, transactions=recent,
         income=income, expenses=expenses, balance=balance,
         savings_rate=savings_rate, spending_data=spending_data, chart_data=chart_data,
@@ -294,7 +334,11 @@ def dashboard():
         daily_expenses=daily_expenses,
         max_daily=max_daily,
         badges=badges,
-        badges_earned=badges_earned)
+        badges_earned=badges_earned,
+        health_score=health_score,
+        health_label=health_label,
+        health_color=health_color,
+        health_factors=health_factors)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
