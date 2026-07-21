@@ -26,7 +26,7 @@ def create_app():
                 db.extract('month', Transaction.date) == now.month,
                 db.extract('year', Transaction.date) == now.year
             ).count()
-        return dict(tx_count=tx_count, page_load_time=datetime.now().strftime('%b %d, %Y %I:%M %p'))
+        return dict(tx_count=tx_count, page_load_time=datetime.now().strftime('%b %d, %Y %I:%M %p'), datetime=datetime)
 
     from .views import views
     from .auth import auth

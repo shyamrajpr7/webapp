@@ -77,6 +77,49 @@
     {{ monthly_summary }}
 </div>
 
+{# Spending Heatmap Calendar #}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <h3>Spending Heatmap</h3>
+        <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);">
+            <span>Less</span>
+            <div style="width:12px; height:12px; border-radius:3px; background:var(--bg-secondary); border:1px solid var(--border);"></div>
+            <div style="width:12px; height:12px; border-radius:3px; background:#bbf7d0;"></div>
+            <div style="width:12px; height:12px; border-radius:3px; background:#4ade80;"></div>
+            <div style="width:12px; height:12px; border-radius:3px; background:#16a34a;"></div>
+            <div style="width:12px; height:12px; border-radius:3px; background:#166534;"></div>
+            <span>More</span>
+        </div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;">
+        {% for d in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+        <div style="text-align:center; font-size:10px; font-weight:600; color:var(--text-muted); padding:4px 0; text-transform:uppercase; letter-spacing:0.5px;">{{ d }}</div>
+        {% endfor %}
+        {% set first_day = datetime(year, month, 1).weekday() %}
+        {% set days_in = days_in_month %}
+        {% for _ in range(first_day) %}
+        <div style="aspect-ratio:1; border-radius:4px;"></div>
+        {% endfor %}
+        {% for day in range(1, days_in + 1) %}
+        {% set amt = daily_expenses.get(day, 0) %}
+        {% if amt == 0 %}
+        {% set bg = 'var(--bg-secondary)' %}
+        {% elif max_daily > 0 and amt / max_daily < 0.25 %}
+        {% set bg = '#bbf7d0' %}
+        {% elif max_daily > 0 and amt / max_daily < 0.5 %}
+        {% set bg = '#4ade80' %}
+        {% elif max_daily > 0 and amt / max_daily < 0.75 %}
+        {% set bg = '#16a34a' %}
+        {% else %}
+        {% set bg = '#166534' %}
+        {% endif %}
+        <div style="aspect-ratio:1; border-radius:4px; background:{{ bg }}; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:500; {{ 'color:#fff;' if bg in ['#16a34a','#166534'] else 'color:var(--text-secondary);' }}; cursor:default; position:relative;" title="Day {{ day }}: ${{ '%.0f'|format(amt) }}">
+            {{ day }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 {# Spending Goal #}
 {% if spending_goal %}
 <div class="card" style="margin-bottom:24px; border-color:{{ 'var(--green-light)' if goal_progress < 80 else 'var(--amber-light)' if goal_progress < 100 else 'var(--red-light)' }};">

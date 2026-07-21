@@ -215,6 +215,12 @@ def dashboard():
     all_vals = [h['income'] for h in monthly_history] + [h['expenses'] for h in monthly_history]
     bar_max = max(all_vals) if all_vals else 1
 
+    daily_expenses = {}
+    for t in expense_transactions:
+        day = t.date.day
+        daily_expenses[day] = daily_expenses.get(day, 0) + t.amount
+    max_daily = max(daily_expenses.values()) if daily_expenses else 1
+
     return render_template('dashboard.html', user=current_user, transactions=recent,
         income=income, expenses=expenses, balance=balance,
         savings_rate=savings_rate, spending_data=spending_data, chart_data=chart_data,
@@ -237,7 +243,9 @@ def dashboard():
         spending_goal=spending_goal, goal_progress=goal_progress,
         savings_goal=savings_goal, savings_progress=savings_progress,
         cat_trend=cat_trend,
-        category_emojis=CATEGORY_EMOJIS)
+        category_emojis=CATEGORY_EMOJIS,
+        daily_expenses=daily_expenses,
+        max_daily=max_daily)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
