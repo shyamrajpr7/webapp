@@ -555,6 +555,18 @@
                     </a>
                 </div>
             </nav>
+            {% if sidebar_recent %}
+            <div style="padding:0 12px 12px;">
+                <div class="sidebar-label" style="padding:0 12px; margin-bottom:6px;">Recent</div>
+                {% for t in sidebar_recent[:4] %}
+                <div style="display:flex; align-items:center; gap:8px; padding:6px 12px; border-radius:6px; font-size:12px;">
+                    <span style="font-size:14px;">{{ category_emojis.get(t.category, '') }}</span>
+                    <span style="flex:1; color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ t.description or t.category }}</span>
+                    <span style="font-weight:600; color:{{ 'var(--green)' if t.type == 'income' else 'var(--red)' }}; font-variant-numeric:tabular-nums; white-space:nowrap;">{{ '+' if t.type == 'income' else '-' }}${{ "%.0f"|format(t.amount) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             <div class="sidebar-footer">
                 <a href="{{ url_for('auth.profile') }}" class="sidebar-user">
                     <div class="sidebar-avatar">{{ user.username[0]|upper }}</div>

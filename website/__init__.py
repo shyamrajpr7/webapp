@@ -6,6 +6,14 @@ from datetime import datetime
 db = SQLAlchemy()
 login_manager = LoginManager()
 
+CATEGORY_EMOJIS = {
+    'Food & Dining': '\U0001f35c', 'Transportation': '\U0001f697', 'Housing': '\U0001f3e0',
+    'Utilities': '\U0001f4a1', 'Entertainment': '\U0001f3ac', 'Shopping': '\U0001f6d2',
+    'Healthcare': '\U0001fa7a', 'Education': '\U0001f4da', 'Other': '\U0001f4cc',
+    'Salary': '\U0001f4b0', 'Freelance': '\U0001f4bb', 'Investments': '\U0001f4c8',
+    'Business': '\U0001f3e2'
+}
+
 def create_app():
     app = Flask(__name__)
 
@@ -19,6 +27,7 @@ def create_app():
     @app.context_processor
     def inject_globals():
         tx_count = 0
+        sidebar_recent = []
         if current_user.is_authenticated:
             from .models import Transaction
             now = datetime.now()
@@ -26,7 +35,11 @@ def create_app():
                 db.extract('month', Transaction.date) == now.month,
                 db.extract('year', Transaction.date) == now.year
             ).count()
-        return dict(tx_count=tx_count, page_load_time=datetime.now().strftime('%b %d, %Y %I:%M %p'), datetime=datetime)
+            sidebar_recent = Transaction.query.filter_by(user_id=current_user.id).order_by(
+                Transaction.date.desc()).limit(5).all()
+        return dict(tx_count=tx_count, page_load_time=datetime.now().strftime('%b %d, %Y %I:%M %p'),
+                    datetime=datetime, sidebar_recent=sidebar_recent,
+                    category_emojis=CATEGORY_EMOJIS)
 
     from .views import views
     from .auth import auth
