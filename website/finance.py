@@ -295,6 +295,43 @@ def dashboard():
         health_score += bs_score
         health_factors.append(('Budget coverage', f'{budget_cats}/9', bs_score / 15 * 100))
     health_score = min(round(health_score), 100)
+
+    spending_alerts = []
+    for cat in EXPENSE_CATEGORIES:
+        cur = expense_by_cat.get(cat, 0)
+        prev = sum(t.amount for t in prev_transactions if t.type == 'expense' and t.category == cat)
+        if prev > 0 and cur > prev * 1.25:
+            spending_alerts.append({
+                'type': 'increase', 'category': cat,
+                'message': f'{category_emojis.get(cat, "")} {cat} spending up {((cur - prev) / prev * 100):.0f}% from last month',
+                'detail': f'${cur:,.0f} vs ${prev:,.0f} last month', 'level': 'warning'
+            })
+        elif prev > 0 and cur < prev * 0.7:
+            spending_alerts.append({
+                'type': 'decrease', 'category': cat,
+                'message': f'{category_emojis.get(cat, "")} Great! {cat} down {((prev - cur) / prev * 100):.0f}%',
+                'detail': f'${cur:,.0f} vs ${prev:,.0f} last month', 'level': 'success'
+            })
+    if income > 0 and savings_rate >= 30:
+        spending_alerts.append({
+            'type': 'milestone', 'category': '',
+            'message': f'\U0001f389 Amazing! {savings_rate:.0f}% savings rate this month',
+            'detail': 'You\'re saving more than 30% of your income', 'level': 'success'
+        })
+    if day_of_month >= 10 and avg_daily_expense > 0 and total_budget > 0:
+        projected = avg_daily_expense * days_in_month
+        if projected > total_budget * 1.1:
+            spending_alerts.append({
+                'type': 'projection', 'category': '',
+                'message': f'\u26a0\ufe0f On pace to exceed budget by ${projected - total_budget:,.0f}',
+                'detail': f'Projected ${projected:,.0f} vs ${total_budget:,.0f} budget', 'level': 'warning'
+            })
+    if expenses == 0 and day_of_month > 3:
+        spending_alerts.append({
+            'type': 'info', 'category': '',
+            'message': '\U0001f44d No expenses recorded this month yet!',
+            'detail': 'Keep up the good work', 'level': 'success'
+        })
     if health_score >= 80:
         health_label = 'Excellent'
         health_color = 'var(--green)'
@@ -338,7 +375,8 @@ def dashboard():
         health_score=health_score,
         health_label=health_label,
         health_color=health_color,
-        health_factors=health_factors)
+        health_factors=health_factors,
+        spending_alerts=spending_alerts)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required

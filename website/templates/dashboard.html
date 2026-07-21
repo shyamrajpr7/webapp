@@ -181,6 +181,27 @@
     </div>
 </div>
 
+{# Smart Spending Alerts #}
+{% if spending_alerts %}
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+        <h3>Smart Alerts</h3>
+        <span style="font-size:11px; color:var(--text-muted);">{{ spending_alerts|length }} alert{{ 's' if spending_alerts|length != 1 }}</span>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+        {% for alert in spending_alerts %}
+        <div style="padding:12px 16px; border-radius:10px; display:flex; align-items:center; gap:12px; animation:slideDown 0.3s ease;
+            {% if alert.level == 'warning' %}background:var(--amber-bg); border:1px solid var(--amber-light);
+            {% elif alert.level == 'success' %}background:var(--green-bg); border:1px solid var(--green-light);
+            {% else %}background:var(--blue-bg); border:1px solid var(--blue-light);{% endif %}">
+            <span style="font-size:14px; font-weight:500; color:var(--text); flex:1;">{{ alert.message }}</span>
+            <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">{{ alert.detail }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 {# Spending Goal #}
 {% if spending_goal %}
 <div class="card" style="margin-bottom:24px; border-color:{{ 'var(--green-light)' if goal_progress < 80 else 'var(--amber-light)' if goal_progress < 100 else 'var(--red-light)' }};">
