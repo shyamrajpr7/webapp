@@ -77,6 +77,40 @@
     {{ monthly_summary }}
 </div>
 
+{# Tracking Streak #}
+{% if current_streak > 0 or longest_streak > 0 %}
+<div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; margin-bottom:24px;">
+    <div class="card" style="padding:16px 20px; display:flex; align-items:center; gap:16px; border-color:{{ 'var(--amber-light)' if current_streak >= 7 else 'var(--border)' }};">
+        <div style="width:48px; height:48px; border-radius:14px; background:{{ 'var(--amber-bg)' if current_streak >= 7 else 'var(--bg-secondary)' }}; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">
+            {{ '\U0001f525' if current_streak >= 7 else '\U0001f4c5' if current_streak >= 3 else '\U0001f4dd' }}
+        </div>
+        <div>
+            <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted);">Current Streak</div>
+            <div style="font-size:24px; font-weight:700; color:{{ 'var(--amber)' if current_streak >= 7 else 'var(--text)' }};">{{ current_streak }} day{{ 's' if current_streak != 1 }}</div>
+            {% if current_streak == 0 %}
+            <div style="font-size:11px; color:var(--text-muted);">Log a transaction today!</div>
+            {% elif current_streak < 3 %}
+            <div style="font-size:11px; color:var(--text-muted);">Keep going!</div>
+            {% elif current_streak < 7 %}
+            <div style="font-size:11px; color:var(--amber);">On fire!</div>
+            {% else %}
+            <div style="font-size:11px; color:var(--amber);">Unstoppable!</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card" style="padding:16px 20px; display:flex; align-items:center; gap:16px;">
+        <div style="width:48px; height:48px; border-radius:14px; background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">
+            {{ '\U0001f3c6' if longest_streak >= 30 else '\U0001f3c5' if longest_streak >= 7 else '\U0001f4aa' }}
+        </div>
+        <div>
+            <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted);">Longest Streak</div>
+            <div style="font-size:24px; font-weight:700; color:var(--primary);">{{ longest_streak }} day{{ 's' if longest_streak != 1 }}</div>
+            <div style="font-size:11px; color:var(--text-muted);">{{ 'Personal best!' if longest_streak >= 30 else 'Your record' }}</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {# Spending Heatmap Calendar #}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-header">

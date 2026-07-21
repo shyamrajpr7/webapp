@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
 from flask_login import login_required, current_user
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 import io
 import calendar
@@ -354,6 +354,28 @@ def dashboard():
     prev_year_expenses = sum(t.amount for t in prev_year_transactions if t.type == 'expense')
     prev_year_savings = prev_year_income - prev_year_expenses
 
+    all_tx_dates = sorted(set(t.date.date() for t in all_time_transactions), reverse=True)
+    current_streak = 0
+    longest_streak = 0
+    temp_streak = 0
+    today_date = now.date()
+    check_date = today_date
+    for d in all_tx_dates:
+        if d == check_date:
+            current_streak += 1
+            check_date -= timedelta(days=1)
+        elif d < check_date:
+            break
+    for i, d in enumerate(all_tx_dates):
+        if i == 0:
+            temp_streak = 1
+        elif (all_tx_dates[i-1] - d).days == 1:
+            temp_streak += 1
+        else:
+            longest_streak = max(longest_streak, temp_streak)
+            temp_streak = 1
+    longest_streak = max(longest_streak, temp_streak, current_streak)
+
     return render_template('dashboard.html', user=current_user, transactions=recent,
         income=income, expenses=expenses, balance=balance,
         savings_rate=savings_rate, spending_data=spending_data, chart_data=chart_data,
@@ -389,7 +411,9 @@ def dashboard():
         year_income=year_income,
         year_expenses=year_expenses,
         year_savings=year_savings,
-        prev_year_savings=prev_year_savings)
+        prev_year_savings=prev_year_savings,
+        current_streak=current_streak,
+        longest_streak=longest_streak)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
