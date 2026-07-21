@@ -23,6 +23,13 @@ CATEGORY_COLORS = {
     'Salary': '#22c55e', 'Freelance': '#3b82f6', 'Investments': '#8b5cf6',
     'Business': '#f97316'
 }
+CATEGORY_EMOJIS = {
+    'Food & Dining': '\U0001f35c', 'Transportation': '\U0001f697', 'Housing': '\U0001f3e0',
+    'Utilities': '\U0001f4a1', 'Entertainment': '\U0001f3ac', 'Shopping': '\U0001f6d2',
+    'Healthcare': '\U0001fa7a', 'Education': '\U0001f4da', 'Other': '\U0001f4cc',
+    'Salary': '\U0001f4b0', 'Freelance': '\U0001f4bb', 'Investments': '\U0001f4c8',
+    'Business': '\U0001f3e2'
+}
 
 @finance.route('/dashboard')
 @login_required
@@ -229,7 +236,8 @@ def dashboard():
         start_date=start_date, end_date=end_date,
         spending_goal=spending_goal, goal_progress=goal_progress,
         savings_goal=savings_goal, savings_progress=savings_progress,
-        cat_trend=cat_trend)
+        cat_trend=cat_trend,
+        category_emojis=CATEGORY_EMOJIS)
 
 @finance.route('/add-transaction', methods=['GET', 'POST'])
 @login_required
@@ -258,7 +266,7 @@ def add_transaction():
 
     return render_template('add_transaction.html', user=current_user,
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
-        category_colors=CATEGORY_COLORS)
+        category_colors=CATEGORY_COLORS, category_emojis=CATEGORY_EMOJIS)
 
 @finance.route('/edit-transaction/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -289,7 +297,7 @@ def edit_transaction(id):
 
     return render_template('edit_transaction.html', user=current_user, transaction=t,
         expense_categories=EXPENSE_CATEGORIES, income_categories=INCOME_CATEGORIES,
-        category_colors=CATEGORY_COLORS)
+        category_colors=CATEGORY_COLORS, category_emojis=CATEGORY_EMOJIS)
 
 @finance.route('/delete-transaction/<int:id>')
 @login_required
@@ -373,7 +381,7 @@ def budgets():
 
     return render_template('budgets.html', user=current_user,
         expense_categories=EXPENSE_CATEGORIES, budget_map=budget_map,
-        category_colors=CATEGORY_COLORS, month=month, year=year, months=months,
+        category_colors=CATEGORY_COLORS, category_emojis=CATEGORY_EMOJIS, month=month, year=year, months=months,
         total_budget=total_budget, total_spent=total_spent, remaining_budget=remaining_budget,
         category_counts=category_counts)
 

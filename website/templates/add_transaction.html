@@ -39,10 +39,10 @@
                 <label>Category</label>
                 <select name="category" id="category" required>
                     {% for cat in expense_categories %}
-                    <option value="{{ cat }}" data-type="expense">{{ cat }}</option>
+                    <option value="{{ cat }}" data-type="expense">{{ category_emojis.get(cat, '') }} {{ cat }}</option>
                     {% endfor %}
                     {% for cat in income_categories %}
-                    <option value="{{ cat }}" data-type="income">{{ cat }}</option>
+                    <option value="{{ cat }}" data-type="income">{{ category_emojis.get(cat, '') }} {{ cat }}</option>
                     {% endfor %}
                 </select>
             </div>

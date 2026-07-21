@@ -310,7 +310,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--red); margin-bottom:6px;">Largest Expense</div>
-                <div style="font-size:14px; font-weight:500; color:var(--text);">{{ largest_expense.category }}</div>
+                <div style="font-size:14px; font-weight:500; color:var(--text);">{{ category_emojis.get(largest_expense.category, '') }} {{ largest_expense.category }}</div>
                 <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">{{ largest_expense.description or 'No description' }} &middot; {{ largest_expense.date.strftime('%b %d') }}</div>
             </div>
             <div style="font-size:28px; font-weight:700; color:var(--red);">-${{ "%.0f"|format(largest_expense.amount) }}</div>
@@ -327,7 +327,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:6px;">Most Active Category</div>
-                <div style="font-size:14px; font-weight:500; color:var(--text);">{{ most_active_category }}</div>
+                <div style="font-size:14px; font-weight:500; color:var(--text);">{{ category_emojis.get(most_active_category, '') }} {{ most_active_category }}</div>
                 <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">{{ most_active_count }} transaction{{ 's' if most_active_count != 1 }} this month</div>
             </div>
             <div style="width:48px; height:48px; border-radius:14px; background:{{ category_colors.get(most_active_category, '#6b7280') }}22; display:flex; align-items:center; justify-content:center;">
@@ -354,7 +354,7 @@
             <div style="width:40px; height:40px; border-radius:12px; background:{{ category_colors.get(cat, '#6b7280') }}15; display:flex; align-items:center; justify-content:center; margin:0 auto 12px;">
                 <div style="width:14px; height:14px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
             </div>
-            <div style="font-size:13px; font-weight:500; color:var(--text); margin-bottom:4px;">{{ cat }}</div>
+            <div style="font-size:13px; font-weight:500; color:var(--text); margin-bottom:4px;">{{ category_emojis.get(cat, '') }} {{ cat }}</div>
             <div style="font-size:22px; font-weight:700; color:var(--text);">${{ "%.0f"|format(amount) }}</div>
             <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">{{ "%.0f"|format(amount / expenses * 100 if expenses > 0 else 0) }}% of total</div>
         </div>
@@ -422,7 +422,7 @@
                 {% for item in chart_data %}
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="width:10px; height:10px; border-radius:3px; background:{{ item.color }}; flex-shrink:0;"></div>
-                    <span style="flex:1; font-size:13px; color:var(--text-secondary);">{{ item.category }}</span>
+                    <span style="flex:1; font-size:13px; color:var(--text-secondary);">{{ category_emojis.get(item.category, '') }} {{ item.category }}</span>
                     <span style="font-size:11px; color:var(--text-muted);">{{ item.count }} tx{{ 's' if item.count != 1 }}</span>
                     <span style="font-size:13px; font-weight:600; color:var(--text);">${{ "%.0f"|format(item.amount) }}</span>
                 </div>
@@ -506,7 +506,7 @@
         <div style="padding:16px; background:var(--bg); border-radius:12px; border:1px solid var(--border-light);">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                 <div style="width:10px; height:10px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
-                <span style="font-size:13px; font-weight:500; color:var(--text);">{{ cat }}</span>
+                <span style="font-size:13px; font-weight:500; color:var(--text);">{{ category_emojis.get(cat, '') }} {{ cat }}</span>
             </div>
             <div style="display:flex; align-items:flex-end; gap:3px; height:48px;">
                 {% set max_val = values|max if values|max > 0 else 1 %}
@@ -545,7 +545,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <div style="width:8px; height:8px; border-radius:50%; background:{{ item.color }};"></div>
-                        <span style="font-size:13px; font-weight:500; color:var(--text);">{{ item.category }}</span>
+                        <span style="font-size:13px; font-weight:500; color:var(--text);">{{ category_emojis.get(item.category, '') }} {{ item.category }}</span>
                     </div>
                     <span style="font-size:12px; color:var(--text-muted);">${{ "%.0f"|format(item.spent) }} / ${{ "%.0f"|format(item.budget) }}</span>
                 </div>
@@ -576,7 +576,7 @@
                     <input type="hidden" name="amount" value="{{ amt }}"/>
                     <button type="submit" class="btn btn-ghost btn-sm" style="font-size:12px;">
                         <div style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
-                        {{ cat }} ${{ amt }}
+                        {{ category_emojis.get(cat, '') }} {{ cat }} ${{ amt }}
                     </button>
                 </form>
                 {% endfor %}
@@ -592,7 +592,7 @@
                     <input type="hidden" name="amount" value="{{ amt }}"/>
                     <button type="submit" class="btn btn-ghost btn-sm" style="font-size:12px;">
                         <div style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(cat, '#6b7280') }};"></div>
-                        {{ cat }} ${{ amt }}
+                        {{ category_emojis.get(cat, '') }} {{ cat }} ${{ amt }}
                     </button>
                 </form>
                 {% endfor %}
@@ -671,7 +671,7 @@
                     <div style="display:flex; align-items:center; gap:6px;">
                         <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:8px; font-size:12px; font-weight:500; background:{{ category_colors.get(t.category, '#6b7280') }}15; color:{{ category_colors.get(t.category, '#6b7280') }};">
                             <span style="width:6px; height:6px; border-radius:50%; background:{{ category_colors.get(t.category, '#6b7280') }};"></span>
-                            {{ t.category }}
+                            {{ category_emojis.get(t.category, '') }} {{ t.category }}
                         </span>
                         {% if t.recurring %}
                         <span style="font-size:10px; padding:2px 6px; border-radius:6px; background:var(--primary-subtle); color:var(--primary); font-weight:600;">R</span>
